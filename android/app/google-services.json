@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "425626089858",
+    "project_id": "mindcare-3a420",
+    "storage_bucket": "mindcare-3a420.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425626089858:android:8cea3b8c4b2cdcb840b79b",
+        "android_client_info": {
+          "package_name": "com.example.wellcare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCamWHUjzKc9JU3jSt_IGzijShpQlsL2B4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

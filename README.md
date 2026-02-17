@@ -4,13 +4,18 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### 🔧 Installation & Setup
 
-A few resources to get you started if this is your first Flutter project:
+#### 1️⃣ Clone Repository
+```bash
+git clone https://github.com/your-username/wellcare.git
+cd wellcare
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+#### 2️⃣ Install Dependencies
+```bash
+flutter pub get
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+⚠️ หมายเหตุ: โปรเจกต์นี้เชื่อมต่อกับ Firebase ของอานา
+หากต้องการใช้งาน Firebase ของตนเอง กรุณาสร้างโปรเจกต์ใหม่ใน Firebase Console และเปลี่ยนไฟล์ `google-services.json` / `GoogleService-Info.plist` เอง
