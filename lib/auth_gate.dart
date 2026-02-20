@@ -22,16 +22,7 @@ class AuthGate extends StatelessWidget {
           return const LoginScreen();
         }
 
-        final user = snapshot.data!;
-        final displayName = user.displayName?.trim();
-        final email = user.email?.trim() ?? '';
-        final fallbackName =
-            email.contains('@') ? email.split('@').first : 'User';
-        final userName = (displayName != null && displayName.isNotEmpty)
-            ? displayName
-            : fallbackName;
-
-        return HomePage(userName: userName);
+        return const HomePage();
       },
     );
   }

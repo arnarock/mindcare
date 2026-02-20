@@ -1,114 +1,153 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'mood_diary.dart';
+import 'profile_screen.dart';
 
 class HomePage extends StatelessWidget {
-  final String userName;
-
-  const HomePage({super.key, required this.userName});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F5F7),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _header(),
-            const SizedBox(height: 12),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    _todayMoodCard(),
-                    const SizedBox(height: 16),
-                    _moodDiaryButton(context),
-                    const SizedBox(height: 16),
+    final user = FirebaseAuth.instance.currentUser;
 
-                    _menuCard(
-                      title: 'Mood Tracking',
-                      subtitle: 'How are you feeling today?',
-                      icon: '😊',
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MoodDiaryPage(),
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: Text("กรุณาเข้าสู่ระบบ")),
+      );
+    }
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final firstName = data['firstName'] ?? '';
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF2F5F7),
+          body: SafeArea(
+            child: Column(
+              children: [
+                _header(context),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _todayMoodCard(firstName),
+                        const SizedBox(height: 16),
+                        _moodDiaryButton(context),
+                        const SizedBox(height: 16),
+
+                        _menuCard(
+                          title: 'Mood Tracking',
+                          subtitle: 'How are you feeling today?',
+                          icon: '😊',
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
                           ),
-                        );
-                      },
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const MoodDiaryPage(),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        _menuCard(
+                          title: 'Deep Breathing',
+                          subtitle: 'Relax in 2 minutes',
+                          icon: '🪷',
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+                          ),
+                          onTap: () {},
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        _menuCard(
+                          title: 'Psychiatrist Chat',
+                          subtitle: 'Talk to a professional',
+                          icon: '💗',
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
+                          ),
+                          onTap: () {},
+                        ),
+                      ],
                     ),
-
-                    const SizedBox(height: 16),
-
-                    _menuCard(
-                      title: 'Deep Breathing',
-                      subtitle: 'Relax in 2 minutes',
-                      icon: '🪷',
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
-                      ),
-                      onTap: () {},
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    _menuCard(
-                      title: 'Psychiatrist Chat',
-                      subtitle: 'Talk to a professional',
-                      icon: '💗',
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                // _bottomNav(),
+              ],
             ),
-            _bottomNav(),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   // ---------------- HEADER ----------------
-  Widget _header() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'MindCare+',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
+  Widget _header(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'MindCare+',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.teal,
           ),
-          Row(
-            children: const [
-              Icon(Icons.notifications_none),
-              SizedBox(width: 12),
-              CircleAvatar(
+        ),
+        Row(
+          children: [
+            const Icon(Icons.notifications_none),
+            const SizedBox(width: 12),
+
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileScreen(),
+                  ),
+                );
+              },
+              child: const CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.teal,
                 child: Icon(Icons.person, color: Colors.white),
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   // ---------------- TODAY MOOD ----------------
-  Widget _todayMoodCard() {
+  Widget _todayMoodCard(String firstName) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -116,29 +155,29 @@ class HomePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
-        children: const [
-          CircleAvatar(
+        children: [
+          const CircleAvatar(
             radius: 24,
             backgroundColor: Colors.teal,
             child: Icon(Icons.person, color: Colors.white),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Good Morning,',
                   style: TextStyle(fontSize: 14),
                 ),
                 Text(
-                  'นันทิชา ☀️',
-                  style: TextStyle(
+                  '$firstName ☀️',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
+                const Text(
                   "You're doing great today.",
                   style: TextStyle(color: Colors.grey),
                 ),
@@ -169,7 +208,6 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ---------------- MENU CARD ----------------
   Widget _menuCard({
     required String title,
     required String subtitle,
@@ -222,23 +260,22 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ---------------- BOTTOM NAV ----------------
-  Widget _bottomNav() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Icon(Icons.home, color: Colors.teal),
-          Icon(Icons.self_improvement),
-          Icon(Icons.chat_bubble_outline),
-          Icon(Icons.person_outline),
-        ],
-      ),
-    );
-  }
+  // Widget _bottomNav() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(vertical: 12),
+  //     decoration: const BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  //     ),
+  //     child: const Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       children: [
+  //         Icon(Icons.home, color: Colors.teal),
+  //         Icon(Icons.self_improvement),
+  //         Icon(Icons.chat_bubble_outline),
+  //         Icon(Icons.person_outline),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
