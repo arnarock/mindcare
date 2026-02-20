@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen_test.dart';
+import 'home.dart';
 import 'login_screen.dart';
 
 class AuthGate extends StatelessWidget {
@@ -22,7 +22,16 @@ class AuthGate extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return const HomeScreen();
+        final user = snapshot.data!;
+        final displayName = user.displayName?.trim();
+        final email = user.email?.trim() ?? '';
+        final fallbackName =
+            email.contains('@') ? email.split('@').first : 'User';
+        final userName = (displayName != null && displayName.isNotEmpty)
+            ? displayName
+            : fallbackName;
+
+        return HomePage(userName: userName);
       },
     );
   }
