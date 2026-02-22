@@ -1,158 +1,116 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MoodDiaryPage extends StatefulWidget {
-  const MoodDiaryPage({super.key});
+class MoodDiaryPage extends StatelessWidget {
+  final DateTime selectedDate;
 
-  @override
-  State<MoodDiaryPage> createState() => _MoodDiaryPageState();
-}
+  const MoodDiaryPage({
+    super.key,
+    required this.selectedDate,
+  });
 
-class _MoodDiaryPageState extends State<MoodDiaryPage> {
-  String selectedMood = '';
-  final TextEditingController noteController = TextEditingController();
-
-  void selectMood(String mood) {
-    setState(() {
-      selectedMood = mood;
-    });
+  String get formattedDate {
+    return "${selectedDate.year}-"
+        "${selectedDate.month.toString().padLeft(2, '0')}-"
+        "${selectedDate.day.toString().padLeft(2, '0')}";
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: Text("Not logged in")),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Mood Diary',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Mood Diary"),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'How are you feeling today?',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 24),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('moods')
+            .doc(formattedDate)
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(
+              child: Text("No mood recorded"),
+            );
+          }
+
+          final data =
+              snapshot.data!.data() as Map<String, dynamic>;
+
+          final emoji = data['emoji'] ?? '';
+          final mood = data['mood'] ?? '';
+          final note = data['note'] ?? '';
+
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.center,
               children: [
-                MoodIcon(
-                  icon: '😄',
-                  label: 'Happy',
-                  isSelected: selectedMood == 'Happy',
-                  onTap: () => selectMood('Happy'),
+                const SizedBox(height: 20),
+
+                // วันที่
+                Text(
+                  formattedDate,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                MoodIcon(
-                  icon: '😐',
-                  label: 'Neutral',
-                  isSelected: selectedMood == 'Neutral',
-                  onTap: () => selectMood('Neutral'),
+
+                const SizedBox(height: 30),
+
+                // Emoji ใหญ่ ๆ
+                Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 60),
                 ),
-                MoodIcon(
-                  icon: '😢',
-                  label: 'Sad',
-                  isSelected: selectedMood == 'Sad',
-                  onTap: () => selectMood('Sad'),
+
+                const SizedBox(height: 20),
+
+                // Mood text
+                Text(
+                  mood,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                MoodIcon(
-                  icon: '😡',
-                  label: 'Angry',
-                  isSelected: selectedMood == 'Angry',
-                  onTap: () => selectMood('Angry'),
+
+                const SizedBox(height: 30),
+
+                // Note
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      note,
+                      style:
+                          const TextStyle(fontSize: 18),
+                    ),
+                  ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 32),
-
-            const Text(
-              'Mood Diary',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Expanded(
-              child: TextField(
-                controller: noteController,
-                maxLines: null,
-                expands: true,
-                decoration: InputDecoration(
-                  hintText: 'Write your feelings here...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Saved successfully'),
-                    ),
-                  );
-                },
-                child: const Text('Save Mood'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MoodIcon extends StatelessWidget {
-  final String icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const MoodIcon({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 32)),
-            const SizedBox(height: 6),
-            Text(label),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

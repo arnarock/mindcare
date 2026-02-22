@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'mood_diary.dart';
+import 'mood_calendar.dart';
 import 'profile_screen.dart';
 
 class HomePage extends StatelessWidget {
@@ -23,10 +23,15 @@ class HomePage extends StatelessWidget {
           .doc(user.uid)
           .snapshots(),
       builder: (context, snapshot) {
-
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Scaffold(
+            body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
           );
         }
 
@@ -61,7 +66,7 @@ class HomePage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const MoodDiaryPage(),
+                                builder: (_) => const MoodCalendarPage(),
                               ),
                             );
                           },
@@ -103,19 +108,31 @@ class HomePage extends StatelessWidget {
     );
   }
 
- // ---------------- HEADER ----------------
+// ---------------- HEADER ----------------
 Widget _header(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'MindCare+',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const HomePage(),
+              ),
+              (route) => false,
+            );
+          },
+          child: const Text(
+            'MindCare+',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
           ),
         ),
         Row(
@@ -142,14 +159,11 @@ Widget _header(BuildContext context) {
 
             const SizedBox(width: 12),
 
-            // 🔥 LOG OUT BUTTON
             IconButton(
               icon: const Icon(Icons.logout, color: Colors.red),
               tooltip: 'Log out',
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                // ไม่ต้อง Navigator เลย
-                // AuthGate จะพากลับ LoginScreen ให้เอง
               },
             ),
           ],
