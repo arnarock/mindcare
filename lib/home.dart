@@ -47,7 +47,7 @@ class HomePage extends StatelessWidget {
                       children: [
                         _todayMoodCard(firstName),
                         const SizedBox(height: 16),
-                        _moodDiaryButton(context),
+                        // _moodDiaryButton(context),
                         const SizedBox(height: 16),
 
                         _menuCard(
@@ -103,8 +103,8 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ---------------- HEADER ----------------
-  Widget _header(BuildContext context) {
+ // ---------------- HEADER ----------------
+Widget _header(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Row(
@@ -138,6 +138,19 @@ class HomePage extends StatelessWidget {
                 backgroundColor: Colors.teal,
                 child: Icon(Icons.person, color: Colors.white),
               ),
+            ),
+
+            const SizedBox(width: 12),
+
+            // 🔥 LOG OUT BUTTON
+            IconButton(
+              icon: const Icon(Icons.logout, color: Colors.red),
+              tooltip: 'Log out',
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                // ไม่ต้อง Navigator เลย
+                // AuthGate จะพากลับ LoginScreen ให้เอง
+              },
             ),
           ],
         ),
@@ -189,24 +202,24 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _moodDiaryButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MoodDiaryPage()),
-          );
-        },
-        icon: const Icon(Icons.menu_book_rounded),
-        label: const Text(
-          'Open Mood Diary',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
+  // Widget _moodDiaryButton(BuildContext context) {
+  //   return SizedBox(
+  //     width: double.infinity,
+  //     child: ElevatedButton.icon(
+  //       onPressed: () {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (_) => const MoodDiaryPage()),
+  //         );
+  //       },
+  //       icon: const Icon(Icons.menu_book_rounded),
+  //       label: const Text(
+  //         'Open Mood Diary',
+  //         style: TextStyle(fontWeight: FontWeight.w600),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _menuCard({
     required String title,
