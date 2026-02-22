@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mindcare/features/home/home.dart';
 import 'package:mindcare/features/profile/profile_screen.dart';
 
