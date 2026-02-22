@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'mood_diary.dart';
 import 'profile_screen.dart';
 import 'meditation_page.dart';
+import 'psychiatrist_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -96,7 +97,14 @@ class HomePage extends StatelessWidget {
                           gradient: const LinearGradient(
                             colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PsychiatristPage(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
