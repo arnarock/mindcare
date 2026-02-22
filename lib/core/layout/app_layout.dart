@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../home.dart';
-import '../profile_screen.dart';
+import 'package:mindcare/features/home/home.dart';
+import 'package:mindcare/features/profile/profile_screen.dart';
 
 class AppLayout extends StatelessWidget {
   final Widget child;
+  final bool isHome;
 
-  const AppLayout({super.key, required this.child});
+  const AppLayout({
+    super.key,
+    required this.child,
+    this.isHome = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,7 @@ class AppLayout extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _header(context),
+            _header(context, isHome: isHome),
             Expanded(child: child),
           ],
         ),
@@ -24,7 +29,7 @@ class AppLayout extends StatelessWidget {
 }
 
 // ---------------- HEADER ----------------
-Widget _header(BuildContext context) {
+Widget _header(BuildContext context, {bool isHome = false}) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     child: Row(
@@ -32,21 +37,23 @@ Widget _header(BuildContext context) {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomePage(),
-              ),
-              (route) => false,
-            );
-          },
-          child: const Text(
+          onTap: isHome
+              ? null
+              : () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HomePage(),
+                    ),
+                    (route) => false,
+                  );
+                },
+          child: Text(
             'MindCare+',
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.teal,
+              color: isHome ? Colors.grey : Colors.teal,
             ),
           ),
         ),
@@ -74,13 +81,7 @@ Widget _header(BuildContext context) {
 
             const SizedBox(width: 12),
 
-            IconButton(
-              icon: const Icon(Icons.logout, color: Colors.red),
-              tooltip: 'Log out',
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-              },
-            ),
+            
           ],
         ),
       ],

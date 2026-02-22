@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mindcare/core/layout/app_layout.dart';
 
 class MeditationPage extends StatefulWidget {
   const MeditationPage({super.key});
@@ -164,27 +165,36 @@ class _MeditationPageState extends State<MeditationPage> {
     super.dispose();
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-
-      appBar: AppBar(
-        title: const Text("Meditation"),
-        backgroundColor: Colors.teal,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.timer),
-            onPressed: _showSetTime,
-          )
-        ],
-      ),
-
-      body: Padding(
+    return AppLayout(
+      child: Container(
+        color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            const SizedBox(height: 20),
+
+            /// Header (แทน AppBar)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Meditation",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.timer, color: Colors.teal),
+                  onPressed: _showSetTime,
+                )
+              ],
+            ),
+
+            const SizedBox(height: 40),
 
             const Text(
               "Time for Meditation...",

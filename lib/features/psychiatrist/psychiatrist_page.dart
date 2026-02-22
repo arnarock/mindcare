@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:mindcare/core/layout/app_layout.dart';
 
 class PsychiatristPage extends StatelessWidget {
   const PsychiatristPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.teal,
-        title: const Text(
-          "Psychiatrist",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-
-      body: Padding(
+    return AppLayout(
+      child: Container(
+        color: Colors.white,
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
             const SizedBox(height: 10),
+            const Text(
+              "Psychiatrist",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
             /// Welcome Text
             const Text(
@@ -104,7 +104,6 @@ class PsychiatristPage extends StatelessWidget {
         child: Row(
           children: [
 
-            /// Icon
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -116,7 +115,6 @@ class PsychiatristPage extends StatelessWidget {
 
             const SizedBox(width: 16),
 
-            /// Text Section
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

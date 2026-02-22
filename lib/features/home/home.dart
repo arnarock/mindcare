@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'mood_calendar.dart';
-import 'profile_screen.dart';
-import 'meditation_page.dart';
-import 'psychiatrist_page.dart';
+
+import 'package:mindcare/features/mood/mood_calendar.dart';
+import 'package:mindcare/features/profile/profile_screen.dart';
+import 'package:mindcare/features/meditation/meditation_page.dart';
+import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -133,15 +134,7 @@ Widget _header(BuildContext context) {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const HomePage(),
-              ),
-              (route) => false,
-            );
-          },
+          onTap: null,
           child: const Text(
             'MindCare+',
             style: TextStyle(

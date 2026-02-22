@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'mood_add.dart';
 import 'mood_diary.dart';
-import 'app_layout.dart';
+import 'package:mindcare/core/layout/app_layout.dart';
 
 class MoodCalendarPage extends StatefulWidget {
   const MoodCalendarPage({super.key});
