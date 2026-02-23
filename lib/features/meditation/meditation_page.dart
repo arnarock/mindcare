@@ -11,6 +11,7 @@ class MeditationPage extends StatefulWidget {
 
 class _MeditationPageState extends State<MeditationPage> {
 
+  /// ✅ ค่าเริ่มต้น 5 นาที
   int remainingSeconds = 300;
   int sessionSeconds = 300;
 
@@ -21,17 +22,12 @@ class _MeditationPageState extends State<MeditationPage> {
   @override
   void initState() {
     super.initState();
-
-    // เปิดหน้าเลือกเวลาเมื่อเข้าหน้านี้
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showSetTime();
-    });
   }
 
   /// --------------------------
   /// เลือกเวลา
   /// --------------------------
-  void _showSetTime() async {
+  Future<void> _showSetTime() async {
     final selectedMinutes = await showModalBottomSheet<int>(
       context: context,
       backgroundColor: Colors.white,
@@ -44,9 +40,13 @@ class _MeditationPageState extends State<MeditationPage> {
     );
 
     if (selectedMinutes != null) {
+      timer?.cancel();
+
       setState(() {
         remainingSeconds = selectedMinutes * 60;
         sessionSeconds = selectedMinutes * 60;
+        isRunning = false;
+        hasStarted = false;
       });
     }
   }
@@ -62,12 +62,10 @@ class _MeditationPageState extends State<MeditationPage> {
         });
       } else {
         timer.cancel();
-
         setState(() {
           isRunning = false;
         });
-
-        _showCompletionDialog(); // ✅ เด้ง popup ตอนครบเวลา
+        _showCompletionDialog();
       }
     });
   }
@@ -95,8 +93,6 @@ class _MeditationPageState extends State<MeditationPage> {
       isRunning = false;
       hasStarted = false;
     });
-
-    _showSetTime();
   }
 
   /// POP-UP เมื่อครบเวลา
@@ -165,7 +161,7 @@ class _MeditationPageState extends State<MeditationPage> {
     super.dispose();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return AppLayout(
       child: Container(
@@ -176,7 +172,7 @@ class _MeditationPageState extends State<MeditationPage> {
 
             const SizedBox(height: 20),
 
-            /// Header (แทน AppBar)
+            /// Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -283,7 +279,7 @@ class SetTimeSheet extends StatefulWidget {
 
 class _SetTimeSheetState extends State<SetTimeSheet> {
 
-  int selectedMinutes = 5;
+  int selectedMinutes = 5; // ค่า default 5 นาที
 
   @override
   Widget build(BuildContext context) {

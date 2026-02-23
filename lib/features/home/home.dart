@@ -10,6 +10,19 @@ import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  /// ---------------- GREETING ----------------
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return "Good Morning ☀️";
+    } else if (hour >= 12 && hour < 17) {
+      return "Good Afternoon 🌤";
+    } else {
+      return "Good Evening 🌙";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -55,8 +68,6 @@ class HomePage extends StatelessWidget {
                       children: [
                         _todayMoodCard(firstName),
                         const SizedBox(height: 16),
-                        // _moodDiaryButton(context),
-                        const SizedBox(height: 16),
 
                         _menuCard(
                           title: 'Mood Tracking',
@@ -79,7 +90,7 @@ class HomePage extends StatelessWidget {
 
                         _menuCard(
                           title: 'Deep Breathing',
-                          subtitle: 'Relax in 2 minutes',
+                          subtitle: 'Relax in 5 minutes',
                           icon: '🪷',
                           gradient: const LinearGradient(
                             colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
@@ -116,7 +127,6 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // _bottomNav(),
               ],
             ),
           ),
@@ -125,17 +135,14 @@ class HomePage extends StatelessWidget {
     );
   }
 
-// ---------------- HEADER ----------------
-Widget _header(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: null,
-          child: const Text(
+  // ---------------- HEADER ----------------
+  Widget _header(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
             'MindCare+',
             style: TextStyle(
               fontSize: 22,
@@ -143,44 +150,43 @@ Widget _header(BuildContext context) {
               color: Colors.teal,
             ),
           ),
-        ),
-        Row(
-          children: [
-            const Icon(Icons.notifications_none),
-            const SizedBox(width: 12),
+          Row(
+            children: [
+              const Icon(Icons.notifications_none),
+              const SizedBox(width: 12),
 
-            InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ProfileScreen(),
-                  ),
-                );
-              },
-              child: const CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.teal,
-                child: Icon(Icons.person, color: Colors.white),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileScreen(),
+                    ),
+                  );
+                },
+                child: const CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.teal,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
               ),
-            ),
 
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            IconButton(
-              icon: const Icon(Icons.logout, color: Colors.red),
-              tooltip: 'Log out',
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-              },
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
+              IconButton(
+                icon: const Icon(Icons.logout, color: Colors.red),
+                tooltip: 'Log out',
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   // ---------------- TODAY MOOD ----------------
   Widget _todayMoodCard(String firstName) {
@@ -202,12 +208,12 @@ Widget _header(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Good Morning,',
-                  style: TextStyle(fontSize: 14),
+                Text(
+                  '${_getGreeting()},',
+                  style: const TextStyle(fontSize: 14),
                 ),
                 Text(
-                  '$firstName ☀️',
+                  '$firstName ✨',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -224,25 +230,6 @@ Widget _header(BuildContext context) {
       ),
     );
   }
-
-  // Widget _moodDiaryButton(BuildContext context) {
-  //   return SizedBox(
-  //     width: double.infinity,
-  //     child: ElevatedButton.icon(
-  //       onPressed: () {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (_) => const MoodDiaryPage()),
-  //         );
-  //       },
-  //       icon: const Icon(Icons.menu_book_rounded),
-  //       label: const Text(
-  //         'Open Mood Diary',
-  //         style: TextStyle(fontWeight: FontWeight.w600),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _menuCard({
     required String title,
@@ -295,23 +282,4 @@ Widget _header(BuildContext context) {
       ),
     );
   }
-
-  // Widget _bottomNav() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(vertical: 12),
-  //     decoration: const BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  //     ),
-  //     child: const Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //       children: [
-  //         Icon(Icons.home, color: Colors.teal),
-  //         Icon(Icons.self_improvement),
-  //         Icon(Icons.chat_bubble_outline),
-  //         Icon(Icons.person_outline),
-  //       ],
-  //     ),
-  //   );
-  // }
 }
