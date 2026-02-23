@@ -10,12 +10,6 @@ class MoodDiaryPage extends StatelessWidget {
     required this.selectedDate,
   });
 
-  String get formattedDate {
-    return "${selectedDate.year}-"
-        "${selectedDate.month.toString().padLeft(2, '0')}-"
-        "${selectedDate.day.toString().padLeft(2, '0')}";
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -26,89 +20,87 @@ class MoodDiaryPage extends StatelessWidget {
       );
     }
 
+    // กำหนดช่วงเวลา 1 วันเต็ม
+    final startOfDay = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+    );
+
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mood Diary"),
         centerTitle: true,
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .collection('moods')
-            .doc(formattedDate)
-            .get(),
+            .where('createdAt', isGreaterThanOrEqualTo: startOfDay)
+            .where('createdAt', isLessThan: endOfDay)
+            .orderBy('createdAt', descending: false)
+            .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
+          if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          if (!snapshot.hasData || !snapshot.data!.exists) {
+          final docs = snapshot.data!.docs;
+
+          if (docs.isEmpty) {
             return const Center(
               child: Text("No mood recorded"),
             );
           }
 
-          final data =
-              snapshot.data!.data() as Map<String, dynamic>;
-
-          final emoji = data['emoji'] ?? '';
-          final mood = data['mood'] ?? '';
-          final note = data['note'] ?? '';
-
-          return Padding(
+          return ListView.builder(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data =
+                  docs[index].data() as Map<String, dynamic>;
 
-                // วันที่
-                Text(
-                  formattedDate,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+              final emoji = data['emoji'] ?? '';
+              final mood = data['mood'] ?? '';
+              final note = data['note'] ?? '';
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        emoji,
+                        style:
+                            const TextStyle(fontSize: 40),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        mood,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        note,
+                        style:
+                            const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
                 ),
-
-                const SizedBox(height: 30),
-
-                // Emoji ใหญ่ ๆ
-                Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 60),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Mood text
-                Text(
-                  mood,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Note
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
-                      note,
-                      style:
-                          const TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),

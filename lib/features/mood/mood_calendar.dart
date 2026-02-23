@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'mood_add.dart';
-import 'mood_diary.dart';
+import 'package:mindcare/features/mood/mood_add.dart';
+import 'package:mindcare/features/mood/mood_diary.dart';
 import 'package:mindcare/core/layout/app_layout.dart';
 
 class MoodCalendarPage extends StatefulWidget {
@@ -17,12 +17,25 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
       PageController(initialPage: 1000);
 
   final DateTime baseDate = DateTime.now();
+  late DateTime currentMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    currentMonth = DateTime.now();
+  }
 
   DateTime getMonth(int pageIndex) {
     return DateTime(
       baseDate.year,
       baseDate.month + (pageIndex - 1000),
     );
+  }
+
+  bool canAddMood() {
+    final now = DateTime.now();
+    return currentMonth.year == now.year &&
+        currentMonth.month == now.month;
   }
 
   @override
@@ -41,29 +54,44 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
+            onPageChanged: (index) {
+              setState(() {
+                currentMonth = getMonth(index);
+              });
+            },
             itemBuilder: (context, index) {
               final monthDate = getMonth(index);
               return _buildMonthView(user.uid, monthDate);
             },
           ),
 
-          // Floating button (เพราะเราไม่มี Scaffold แล้ว)
           Positioned(
             bottom: 20,
             left: 0,
             right: 0,
             child: Center(
               child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MoodAddPage(
-                        selectedDate: DateTime.now(),
-                      ),
-                    ),
-                  );
-                },
+                onPressed: canAddMood()
+                    ? () async {
+                        final now = DateTime.now();
+                        final today = DateTime(
+                          now.year,
+                          now.month,
+                          now.day,
+                        );
+
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MoodAddPage(
+                              selectedDate: today,
+                            ),
+                          ),
+                        );
+
+                        setState(() {});
+                      }
+                    : null,
                 child: const Icon(Icons.add),
               ),
             ),
@@ -71,16 +99,13 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
         ],
       ),
     );
-}
+  }
 
   Widget _buildMonthView(String uid, DateTime monthDate) {
     final firstDay =
         DateTime(monthDate.year, monthDate.month, 1);
     final nextMonth =
         DateTime(monthDate.year, monthDate.month + 1, 1);
-
-    final daysInMonth =
-        DateTime(monthDate.year, monthDate.month + 1, 0).day;
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -89,23 +114,15 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           .collection('moods')
           .where('createdAt', isGreaterThanOrEqualTo: firstDay)
           .where('createdAt', isLessThan: nextMonth)
+          .orderBy('createdAt', descending: false)
           .snapshots(),
       builder: (context, snapshot) {
-        Map<String, String> moodMap = {};
-
-        if (snapshot.hasData) {
-          for (var doc in snapshot.data!.docs) {
-            final data =
-                doc.data() as Map<String, dynamic>;
-            final timestamp =
-                data['createdAt'] as Timestamp;
-            final date = timestamp.toDate();
-            final key =
-                "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-
-            moodMap[key] = data['emoji'];
-          }
+        if (!snapshot.hasData) {
+          return const Center(
+              child: CircularProgressIndicator());
         }
+
+        final docs = snapshot.data!.docs;
 
         return SafeArea(
           child: Padding(
@@ -114,53 +131,65 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
             child: Column(
               children: [
                 const SizedBox(height: 16),
+
                 Text(
                   "${_monthName(monthDate.month)} ${monthDate.year}",
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: GridView.builder(
-                    physics:
-                        const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 7,
-                    ),
-                    itemCount: daysInMonth,
-                    itemBuilder: (context, index) {
-                      final day = index + 1;
-                      final key =
-                          "${monthDate.year}-${monthDate.month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}";
 
-                      final emoji = moodMap[key];
+                const SizedBox(height: 32),
 
-                      return GestureDetector(
-                        onTap: emoji != null
-                            ? () {
+                if (docs.isEmpty)
+                  const Text(
+                    "No moods this month",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16),
+                  ),
+
+                if (docs.isNotEmpty)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: docs.map((doc) {
+                            final data =
+                                doc.data() as Map<String, dynamic>;
+
+                            final Timestamp timestamp =
+                                data['createdAt'];
+                            final DateTime date =
+                                timestamp.toDate();
+
+                            return GestureDetector(
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) =>
-                                        MoodDiaryPage(selectedDate: DateTime(monthDate.year, monthDate.month, day)),
+                                        MoodDiaryPage(
+                                      selectedDate: date,
+                                    ),
                                   ),
                                 );
-                              }
-                            : null,
-                        child: Center(
-                          child: Text(
-                            emoji ?? '',
-                            style:
-                                const TextStyle(fontSize: 28),
-                          ),
+                              },
+                              child: Text(
+                                data['emoji'],
+                                style: const TextStyle(
+                                    fontSize: 40),
+                              ),
+                            );
+                          }).toList(),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
               ],
             ),
           ),

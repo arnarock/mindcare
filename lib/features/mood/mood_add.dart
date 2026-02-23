@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class MoodAddPage extends StatefulWidget {
   final DateTime selectedDate;
@@ -19,6 +20,24 @@ class _MoodAddPageState extends State<MoodAddPage> {
   String selectedEmoji = '';
   final TextEditingController noteController = TextEditingController();
 
+  bool canSaveForSelectedDate() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final selected = DateTime(
+      widget.selectedDate.year,
+      widget.selectedDate.month,
+      widget.selectedDate.day,
+    );
+
+    final difference = today.difference(selected).inDays;
+
+    if (selected.isAfter(today)) return false;
+    if (difference > 7) return false;
+
+    return true;
+  }
+
   void selectMood(String mood, String emoji) {
     setState(() {
       selectedMood = mood;
@@ -26,13 +45,18 @@ class _MoodAddPageState extends State<MoodAddPage> {
     });
   }
 
-  String get formattedDate {
-    return "${widget.selectedDate.year}-"
-        "${widget.selectedDate.month.toString().padLeft(2, '0')}-"
-        "${widget.selectedDate.day.toString().padLeft(2, '0')}";
-  }
-
   Future<void> saveMood() async {
+    if (!canSaveForSelectedDate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "You can only add moods for today or within the past 7 days.",
+          ),
+        ),
+      );
+      return;
+    }
+
     if (selectedMood.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a mood")),
@@ -43,16 +67,31 @@ class _MoodAddPageState extends State<MoodAddPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final now = DateTime.now();
+
+    final fullDateTime = DateTime(
+      widget.selectedDate.year,
+      widget.selectedDate.month,
+      widget.selectedDate.day,
+      now.hour,
+      now.minute,
+      now.second,
+      now.millisecond, 
+    );
+
+    final docId =
+        DateFormat("dd_MMMM_yyyy 'at' h_mm_ss_SSS_a").format(fullDateTime);
+
     await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('moods')
-        .doc(formattedDate)
+        .doc(docId)
         .set({
       'emoji': selectedEmoji,
       'mood': selectedMood,
       'note': noteController.text.trim(),
-      'createdAt': Timestamp.fromDate(widget.selectedDate),
+      'createdAt': Timestamp.fromDate(fullDateTime),
     });
 
     if (!mounted) return;
@@ -69,6 +108,8 @@ class _MoodAddPageState extends State<MoodAddPage> {
   Widget build(BuildContext context) {
     final displayDate =
         "${widget.selectedDate.day} / ${widget.selectedDate.month} / ${widget.selectedDate.year}";
+
+    final canSave = canSaveForSelectedDate();
 
     return Scaffold(
       appBar: AppBar(
@@ -91,7 +132,6 @@ class _MoodAddPageState extends State<MoodAddPage> {
               ),
             ),
             const SizedBox(height: 24),
-
             const Text(
               'How are you feeling today?',
               style: TextStyle(
@@ -99,9 +139,7 @@ class _MoodAddPageState extends State<MoodAddPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-
             const SizedBox(height: 24),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -131,9 +169,7 @@ class _MoodAddPageState extends State<MoodAddPage> {
                 ),
               ],
             ),
-
             const SizedBox(height: 32),
-
             const Text(
               'Mood Diary',
               style: TextStyle(
@@ -141,9 +177,7 @@ class _MoodAddPageState extends State<MoodAddPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 12),
-
             Expanded(
               child: TextField(
                 controller: noteController,
@@ -157,13 +191,11 @@ class _MoodAddPageState extends State<MoodAddPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: saveMood,
+                onPressed: canSave ? saveMood : null,
                 child: const Text('Save Mood'),
               ),
             ),
