@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:mindcare/core/layout/app_layout.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -36,6 +38,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user?.uid)
+            .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Center(child: Text("ไม่พบข้อมูลผู้ใช้"));
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final firstName = data['firstName'] ?? '';
+        final lastName  = data['lastName'] ?? '';
+        final fullName = "$firstName $lastName";
+        final phoneNumber = data['phone'] ?? '';
+
     return AppLayout(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -70,25 +92,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 15),
 
             Text(
-              user?.email ?? "No Email",
+                  fullName,
               style: const TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
               ),
             ),
+                Text(
+                  user?.email ?? "-",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
 
-            const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
-            /// ---------------- Email Card ----------------
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  color: Colors.white,
+                  elevation: 3,
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+
+                      _infoCard(
+                        icon: Icons.person_pin_rounded,
+                        title: "Full Name",
+                        value: fullName,
+                      ),
+
+                      const Divider(
+                        height: 1,
+                        indent: 16,
+                        endIndent: 16,
+                      ),
+
+                      _infoCard(
+                        icon: Icons.call,
+                        title: "Phone Number",
+                        value: phoneNumber,
+                      ),
+
+                      const Divider(
+                        height: 1,
+                        indent: 16,
+                        endIndent: 16,
+                      ),
+
             _infoCard(
               icon: Icons.email,
-              title: "อีเมล",
+                        title: "Email",
               value: user?.email ?? "-",
+                      ),
+                    ],
+                  ),
             ),
 
             const SizedBox(height: 20),
 
-            /// ---------------- Verification Status ----------------
+
+                // Verification Status 
             if (user != null && !user.emailVerified)
               _warningCard()
             else
@@ -96,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 20),
 
-            /// ---------------- Refresh Button ----------------
+                // Refresh Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -114,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 20),
 
-            /// ---------------- Logout ----------------
+                // Logout 
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -142,6 +208,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+        );
+      }
     );
   }
 
@@ -151,18 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String value,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
-            blurRadius: 8,
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Icon(icon, color: Colors.teal),
