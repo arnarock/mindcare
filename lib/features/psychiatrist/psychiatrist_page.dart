@@ -1,77 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:mindcare/core/layout/app_layout.dart';
+import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
 
 class PsychiatristPage extends StatelessWidget {
   const PsychiatristPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AppLayout(
-      child: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    final user = FirebaseAuth.instance.currentUser;
 
-            const SizedBox(height: 10),
-            const Text(
-              "Psychiatrist",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: Text("กรุณาเข้าสู่ระบบ")),
+      );
+    }
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Scaffold(
+            body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
+          );
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final firstName = data['firstName'] ?? '';
+
+        return AppLayout(
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                // Welcome Text
+                Text(
+                  "Welcome, $firstName",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                // Welcome sub Text
+                const Text(
+                  "Take care of yourself with\nPsychological Counselling",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Inbox Card
+                _optionCard(
+                  context,
+                  icon: Icons.chat_outlined,
+                  title: "My Inbox",
+                  subtitle: "Chat with Psychiatrist",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PsychiatristChatPage(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Self Assessment Card
+                _optionCard(
+                  context,
+                  icon: Icons.edit_note_outlined,
+                  title: "Self Assessments",
+                  subtitle: "Mental health evaluation",
+                  onTap: () {
+                    // TODO: เปิดหน้าแบบประเมิน
+                  },
+                ),
+              ],
             ),
-
-            const SizedBox(height: 20),
-
-            /// Welcome Text
-            const Text(
-              "Welcome, User",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            const Text(
-              "Take care of yourself with\nPsychological Counselling",
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            /// My Inbox Card
-            _optionCard(
-              context,
-              icon: Icons.chat_bubble_outline,
-              title: "My Inbox",
-              subtitle: "Chat with Psychiatrist",
-              onTap: () {
-                // TODO: เปิดหน้า Chat จริงในอนาคต
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            /// Self Assessment Card
-            _optionCard(
-              context,
-              icon: Icons.edit_note_outlined,
-              title: "Self Assessments",
-              subtitle: "Mental health evaluation",
-              onTap: () {
-                // TODO: เปิดหน้าแบบประเมิน
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
