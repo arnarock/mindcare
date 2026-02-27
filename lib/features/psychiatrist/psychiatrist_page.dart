@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:mindcare/core/layout/app_layout.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
+import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
 
 class PsychiatristPage extends StatelessWidget {
   const PsychiatristPage({super.key});
@@ -94,7 +95,12 @@ class PsychiatristPage extends StatelessWidget {
                   title: "Self Assessments",
                   subtitle: "Mental health evaluation",
                   onTap: () {
-                    // TODO: เปิดหน้าแบบประเมิน
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SelfAssessmentPage(),
+                      ),
+                    );
                   },
                 ),
               ],
