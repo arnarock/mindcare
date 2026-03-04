@@ -28,13 +28,17 @@ class PsychiatristPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(
+              child: CircularProgressIndicator()
+            ),
           );
         }
 
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Scaffold(
-            body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
+            body: Center(
+              child: Text("ไม่พบข้อมูลผู้ใช้")
+            ),
           );
         }
 
@@ -95,30 +99,30 @@ class PsychiatristPage extends StatelessWidget {
                   icon: Icons.edit_note_outlined,
                   title: "Self Assessments",
                   subtitle: "Mental health evaluation",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PsychiatristSelfAssessmentPage(),
-                      ),
-                    );
-                  },
-                ),
+                  onTap: () async  {
+                    final user = FirebaseAuth.instance.currentUser;
+                      if (user == null) return;
 
-                const SizedBox(height: 20),
+                      final doc = await FirebaseFirestore.instance
+                          .collection("self_assessment_results")
+                          .doc(user.uid)
+                          .get();
 
-                _optionCard(
-                  context,
-                  icon: Icons.history,
-                  title: "Self Assessments Result",
-                  subtitle: "Mental health evaluation Result",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PsychiatristSelfAssessmentResultPage(),
-                      ),
-                    );
+                      if (doc.exists) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PsychiatristSelfAssessmentPage(),
+                          ),
+                        );
+                      }
                   },
                 ),
               ],
@@ -129,9 +133,6 @@ class PsychiatristPage extends StatelessWidget {
     );
   }
 
-  /// ------------------------------
-  /// Option Card Widget
-  /// ------------------------------
   Widget _optionCard(
     BuildContext context, {
     required IconData icon,

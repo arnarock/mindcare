@@ -62,11 +62,15 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator()
+          );
         }
 
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Center(child: Text("ไม่พบข้อมูลผู้ใช้"));
+          return const Center(
+            child: Text("ไม่พบข้อมูลผู้ใช้")
+          );
         }
 
         final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -89,14 +93,23 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 20),
+
                 _resultHeader(score, result),
+
                 const SizedBox(height: 20),
+
                 _resultCard(context, result),
+
                 const SizedBox(height: 20),
+
                 _criteriaSection(),
+
                 const Spacer(),
+
                 _retakeAssessmentButton(context),
+
                 const SizedBox(height: 12),
+                
                 _historyAssessmentButton(context),
               ],
             ),
@@ -112,16 +125,19 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
         Text(_getEmoji(result), style: const TextStyle(fontSize: 80)),
         const SizedBox(height: 8),
         Text(
-          "คุณได้คะแนนรวม $score / 220 คะแนน",
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          "คะแนนรวม $score / 220 คะแนน",
+          style: const TextStyle(
+            fontSize: 20, 
+            fontWeight: FontWeight.w700
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           _getResultThai(result),
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 16, 
-            fontWeight: FontWeight.w600
+            fontSize: 18, 
+            fontWeight: FontWeight.w700
           ),
         ),
       ],
@@ -149,13 +165,15 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
             _getDescription(result),
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 16, 
+              fontSize: 15, 
               fontWeight: FontWeight.w500
             ),
           ),
           const SizedBox(height: 12),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -181,12 +199,27 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
       children: [
         Text("เกณฑ์ปกติที่กำหนด", 
         style: TextStyle(
+          color: Colors.grey,
           fontWeight: FontWeight.bold
         )),
-        SizedBox(height: 8),
-        Text("คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)"),
-        Text("คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)"),
-        Text("คะแนนมากกว่า 178 มีสุขภาพจิตดีกว่าคนทั่วไป (Good)"),
+        SizedBox(height: 5),
+        Text(
+          "คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)",
+          style: TextStyle(
+            color: Colors.grey,
+          )
+        ),
+        Text("คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)",
+          style: TextStyle(
+            color: Colors.grey,
+          )
+        ),
+        Text(
+          "คะแนนมากกว่า 178 มีสุขภาพจิตดีกว่าคนทั่วไป (Good)",
+          style: TextStyle(
+            color: Colors.grey,
+          )
+        ),
       ],
     );
   }

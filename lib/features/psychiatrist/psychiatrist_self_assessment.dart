@@ -71,13 +71,17 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
     "เมื่อท่านหรือญาติเจ็บป่วยจะไช้บริการจากหน่วยงานสาธารณสุขใกล้บ้าน",
     "เมื่อท่านเดือดร้อนจะมีหน่วยงานในชุมชน(เช่น มูลนิธิ ชมรม สมาคม วัด สุเหร่า ฯลฯ) มาช่วยเหลือดูแลท่าน"
   ];
+
   final Set<int> reverseScoreQuestions = {
     5,6,7,8,9,10,11,12,13,25,26,27,28
   };
+
   final int questionsPerPage = 5;
+
   bool isUnanswer = false;
   int currentStep = 0;
   int get stepsQuestion => (questions.length / questionsPerPage).ceil();
+
   int calculateTotalScore() {
     int total = 0;
     for (int i = 0; i < answers.length; i++) {
@@ -93,6 +97,7 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
     }
     return total;
   }
+
   String interpretResult(int score) {
     if (score >= 179) {
       return "Good";
@@ -102,6 +107,7 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
       return "Poor";
     }
   }
+
   bool get isCurrentPageValid {
     final start = currentStep * questionsPerPage;
     final end = (start + questionsPerPage).clamp(0, questions.length);
@@ -132,7 +138,6 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -156,17 +161,11 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
               ),
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 12),
-            
             _progressHeader(),
-
             const SizedBox(height: 12),
-
             _scaleLegend(),
-
             const SizedBox(height: 12),
-
             Expanded(
               child: ListView.builder(
                 itemCount: currentQuestions.length,
@@ -195,10 +194,11 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
             const SizedBox(height: 5),
 
             _nextButton(),
-
-            const SizedBox(height: 12),
-
-            _backButton(),
+            
+            if (currentStep > 0) ... [
+              const SizedBox(height: 12),
+              _backButton(),
+            ],
           ],
         ),
       ),
@@ -221,7 +221,7 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
 
     setState(() {
       answers = savedAnswers.map((e) => e as int).toList();
-      currentStep = (questions.length / questionsPerPage).ceil() - 1;
+      currentStep = 0;
     });
   }
 
@@ -304,10 +304,11 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: colors[i], // สีขอบ
+                  color: colors[i], 
+
                   width: 1,
                 ),
-                color: colors[i].withOpacity(0.2), // สีด้านในอ่อนกว่า
+                color: colors[i].withOpacity(0.2),
               ),
             ),
             const SizedBox(height: 8),
@@ -339,7 +340,9 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: isInvalid ? Colors.red : Colors.transparent,
+          color: isInvalid 
+            ? Colors.red 
+            : Colors.transparent,
           width: 1,
         ),
       ),
@@ -415,6 +418,25 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
           backgroundColor: Colors.teal,
         ),
         onPressed: () {
+
+          // view only mode
+          if (widget.isViewOnly) {
+            if (isLastStep) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+                ),
+              );
+            } else {
+              setState(() {
+                currentStep++;
+              });
+            }
+            return;
+          }
+
+          // take assessment mode
           final start = currentStep * questionsPerPage;
           final end = (start + questionsPerPage).clamp(0, questions.length);
 
@@ -446,12 +468,16 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
           }
         },
         child: Text(
-          isLastStep ? "ส่งแบบประเมิน" : "ถัดไป",
+          widget.isViewOnly && isLastStep
+            ? "ดูผลการทำแบบประเมิน"
+            : isLastStep
+              ? "ส่งแบบประเมิน"
+              : "ถัดไป",
           style: const TextStyle(
             color: Colors.white,
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            ),
+          ),
         ),
       ),
     );
