@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
+import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
+
 class PsychiatristChatPage extends StatefulWidget {
   const PsychiatristChatPage({super.key});
 
@@ -23,6 +26,15 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_note),
+            tooltip: "Self Assessment",
+            onPressed: () {
+              _openAssessment(context);
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -100,6 +112,34 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _openAssessment(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection("self_assessment_results")
+        .doc(user.uid)
+        .get();
+
+    if (!mounted) return;
+
+    if (doc.exists) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const PsychiatristSelfAssessmentPage(),
+        ),
+      );
+    }
   }
 
   // Send Message

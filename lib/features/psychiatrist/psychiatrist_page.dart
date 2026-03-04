@@ -103,26 +103,26 @@ class PsychiatristPage extends StatelessWidget {
                     final user = FirebaseAuth.instance.currentUser;
                       if (user == null) return;
 
-                      final doc = await FirebaseFirestore.instance
-                          .collection("self_assessment_results")
-                          .doc(user.uid)
-                          .get();
+                    final doc = await FirebaseFirestore.instance
+                        .collection("self_assessment_results")
+                        .doc(user.uid)
+                        .get();
 
-                      if (doc.exists) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PsychiatristSelfAssessmentResultPage(),
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PsychiatristSelfAssessmentPage(),
-                          ),
-                        );
-                      }
+                    if (doc.exists) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PsychiatristSelfAssessmentPage(),
+                        ),
+                      );
+                    }
                   },
                 ),
               ],
