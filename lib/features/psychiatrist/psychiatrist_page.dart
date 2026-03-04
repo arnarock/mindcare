@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindcare/core/layout/app_layout.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
+import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
 
 class PsychiatristPage extends StatelessWidget {
   const PsychiatristPage({super.key});
@@ -98,7 +99,24 @@ class PsychiatristPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const SelfAssessmentPage(),
+                        builder: (_) => const PsychiatristSelfAssessmentPage(),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                _optionCard(
+                  context,
+                  icon: Icons.history,
+                  title: "Self Assessments Result",
+                  subtitle: "Mental health evaluation Result",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PsychiatristSelfAssessmentResultPage(),
                       ),
                     );
                   },
@@ -139,7 +157,6 @@ class PsychiatristPage extends StatelessWidget {
         ),
         child: Row(
           children: [
-
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -155,7 +172,6 @@ class PsychiatristPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     title,
                     style: const TextStyle(
