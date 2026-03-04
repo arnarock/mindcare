@@ -76,30 +76,28 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            title: const Text("Self Assessment Result"),
+            title: const Text(
+              'Self Assessment',
+              style: TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
             centerTitle: true,
           ),
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                const SizedBox(height: 20),
                 _resultHeader(score, result),
-
-                const SizedBox(height: 16),
-
+                const SizedBox(height: 20),
                 _resultCard(context, result),
-
-                const SizedBox(height: 16),
-
+                const SizedBox(height: 20),
                 _criteriaSection(),
-
                 const Spacer(),
-
-                _editButton(context),
-
+                _retakeAssessmentButton(context),
                 const SizedBox(height: 12),
-
-                _historyButton(context),
+                _historyAssessmentButton(context),
               ],
             ),
           ),
@@ -121,7 +119,10 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
         Text(
           _getResultThai(result),
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontSize: 16, 
+            fontWeight: FontWeight.w600
+          ),
         ),
       ],
     );
@@ -147,6 +148,10 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
           Text(
             _getDescription(result),
             textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.w500
+            ),
           ),
           const SizedBox(height: 12),
           ElevatedButton(
@@ -161,7 +166,9 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
             },
             child: const Text(
               "พูดคุยกับจิตแพทย์",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                color: Colors.white
+              ),
             ),
           ),
         ],
@@ -172,7 +179,10 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
   Widget _criteriaSection() {
     return const Column(
       children: [
-        Text("เกณฑ์ปกติที่กำหนด", style: TextStyle(fontWeight: FontWeight.bold)),
+        Text("เกณฑ์ปกติที่กำหนด", 
+        style: TextStyle(
+          fontWeight: FontWeight.bold
+        )),
         SizedBox(height: 8),
         Text("คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)"),
         Text("คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)"),
@@ -181,7 +191,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
-  Widget _editButton(BuildContext context) {
+  Widget _retakeAssessmentButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -203,7 +213,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
           );
         },
         child: const Text(
-          "แก้ไขคำตอบ",
+          "เริ่มทำแบบประเมินใหม่อีกครั้ง",
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -214,7 +224,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
-  Widget _historyButton(BuildContext context) {
+  Widget _historyAssessmentButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
@@ -236,11 +246,10 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
           );
         },
         child: const Text(
-          "ดูประวัติการกรอก",
+          "ดูประวัติการทำแบบประเมิน",
           style: TextStyle(
             color: Colors.teal,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ),
