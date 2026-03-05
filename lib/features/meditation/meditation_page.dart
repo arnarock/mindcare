@@ -9,9 +9,10 @@ class MeditationPage extends StatefulWidget {
   State<MeditationPage> createState() => _MeditationPageState();
 }
 
-class _MeditationPageState extends State<MeditationPage> {
+class _MeditationPageState extends State<MeditationPage>
+    with SingleTickerProviderStateMixin {
 
-  /// ✅ ค่าเริ่มต้น 5 นาที
+  /// ค่าเริ่มต้น 5 นาที
   int remainingSeconds = 300;
   int sessionSeconds = 300;
 
@@ -19,9 +20,28 @@ class _MeditationPageState extends State<MeditationPage> {
   bool isRunning = false;
   bool hasStarted = false;
 
+  late AnimationController _breathController;
+  late Animation<double> _breathAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    /// breathing animation
+    _breathController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    );
+
+    _breathAnimation = Tween<double>(
+      begin: 0.9,
+      end: 1.2,
+    ).animate(
+      CurvedAnimation(
+        parent: _breathController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   /// --------------------------
@@ -32,9 +52,7 @@ class _MeditationPageState extends State<MeditationPage> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(30),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       builder: (context) => const SetTimeSheet(),
     );
@@ -62,9 +80,12 @@ class _MeditationPageState extends State<MeditationPage> {
         });
       } else {
         timer.cancel();
+        _breathController.stop();
+
         setState(() {
           isRunning = false;
         });
+
         _showCompletionDialog();
       }
     });
@@ -74,8 +95,10 @@ class _MeditationPageState extends State<MeditationPage> {
   void toggleTimer() {
     if (isRunning) {
       timer?.cancel();
+      _breathController.stop();
     } else {
       startTimer();
+      _breathController.repeat(reverse: true);
       hasStarted = true;
     }
 
@@ -87,6 +110,7 @@ class _MeditationPageState extends State<MeditationPage> {
   /// RESET
   void resetTimer() {
     timer?.cancel();
+    _breathController.stop();
 
     setState(() {
       remainingSeconds = sessionSeconds;
@@ -149,15 +173,10 @@ class _MeditationPageState extends State<MeditationPage> {
     );
   }
 
-  String formatTime(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return "$minutes:$secs";
-  }
-
   @override
   void dispose() {
     timer?.cancel();
+    _breathController.dispose();
     super.dispose();
   }
 
@@ -197,34 +216,39 @@ class _MeditationPageState extends State<MeditationPage> {
               style: TextStyle(fontSize: 20),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 60),
 
-            Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.teal.withOpacity(0.1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.teal.withOpacity(0.3),
-                    blurRadius: 20,
-                    spreadRadius: 5,
+            /// Breathing Circle
+            ScaleTransition(
+              scale: _breathAnimation,
+              child: Container(
+                width: 220,
+                height: 220,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.teal.withOpacity(0.15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.teal.withOpacity(0.3),
+                      blurRadius: 30,
+                      spreadRadius: 10,
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  "Breathe",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                formatTime(remainingSeconds),
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 60),
 
+            /// Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -279,7 +303,7 @@ class SetTimeSheet extends StatefulWidget {
 
 class _SetTimeSheetState extends State<SetTimeSheet> {
 
-  int selectedMinutes = 5; // ค่า default 5 นาที
+  int selectedMinutes = 5;
 
   @override
   Widget build(BuildContext context) {
