@@ -19,6 +19,15 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
   final DateTime baseDate = DateTime.now();
   late DateTime currentMonth;
 
+  static const Map<String, String> moodImages = {
+    "Ecstatic": "assets/images/moods/mood_ecstatic.png",
+    "Happy": "assets/images/moods/mood_happy.png",
+    "Calm": "assets/images/moods/mood_calm.png",
+    "Bored": "assets/images/moods/mood_bored.png",
+    "Tired": "assets/images/moods/mood_tired.png",
+    "Worried": "assets/images/moods/mood_worried.png",
+  };
+
   @override
   void initState() {
     super.initState();
@@ -112,9 +121,6 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           .collection('users')
           .doc(uid)
           .collection('moods')
-          .where('createdAt', isGreaterThanOrEqualTo: firstDay)
-          .where('createdAt', isLessThan: nextMonth)
-          .orderBy('createdAt', descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -122,7 +128,11 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
               child: CircularProgressIndicator());
         }
 
-        final docs = snapshot.data!.docs;
+        final docs = snapshot.data!.docs.where((doc) {
+          final date = DateTime.parse(doc.id);
+          return date.isAfter(firstDay.subtract(const Duration(days: 1))) &&
+                 date.isBefore(nextMonth);
+        }).toList();
 
         return SafeArea(
           child: Padding(
@@ -159,13 +169,15 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                           spacing: 12,
                           runSpacing: 12,
                           children: docs.map((doc) {
-                            final data =
-                                doc.data() as Map<String, dynamic>;
+                            final data = doc.data() as Map<String, dynamic>;
 
-                            final Timestamp timestamp =
-                                data['createdAt'];
-                            final DateTime date =
-                                timestamp.toDate();
+                            final avgMood = data["averageMood"] ?? "Calm";
+
+                            final imagePath =
+                                moodImages[avgMood] ??
+                                "assets/images/moods/mood_calm.png";
+
+                            final date = DateTime.parse(doc.id);
 
                             return GestureDetector(
                               onTap: () {
@@ -173,16 +185,14 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) =>
-                                        MoodDiaryPage(
-                                      selectedDate: date,
-                                    ),
+                                      MoodDiaryPage(selectedDate: date),
                                   ),
                                 );
                               },
-                              child: Text(
-                                data['emoji'],
-                                style: const TextStyle(
-                                    fontSize: 40),
+                              child: Image.asset(
+                                imagePath,
+                                width: 50,
+                                height: 50,
                               ),
                             );
                           }).toList(),
