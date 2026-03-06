@@ -16,106 +16,34 @@ class MoodAddPage extends StatefulWidget {
 }
 
 class _MoodAddPageState extends State<MoodAddPage> {
-  String selectedMood = '';
-  String selectedEmoji = '';
   final TextEditingController noteController = TextEditingController();
 
-  bool canSaveForSelectedDate() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+  final List<Map<String, String>> moods = [
+    {"image": "assets/images/moods/mood_ecstatic.png", "label": "Ecstatic"},
+    // {"image": "assets/images/moods/mood_excited.png", "label": "Excited"},
+    {"image": "assets/images/moods/mood_happy.png", "label": "Happy"},
+    {"image": "assets/images/moods/mood_calm.png", "label": "Calm"},
+    {"image": "assets/images/moods/mood_bored.png", "label": "Bored"},
+    {"image": "assets/images/moods/mood_tired.png", "label": "Tired"},
+    {"image": "assets/images/moods/mood_worried.png", "label": "Worried"},
+    // {"image": "assets/images/moods/mood_sad.png", "label": "Sad"},
+    // {"image": "assets/images/moods/mood_stressed.png", "label": "Stressed"},
+  ];
 
-    final selected = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      widget.selectedDate.day,
-    );
-
-    final difference = today.difference(selected).inDays;
-
-    if (selected.isAfter(today)) return false;
-    if (difference > 7) return false;
-
-    return true;
-  }
-
-  void selectMood(String mood, String emoji) {
-    setState(() {
-      selectedMood = mood;
-      selectedEmoji = emoji;
-    });
-  }
-
-  Future<void> saveMood() async {
-    if (!canSaveForSelectedDate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "You can only add moods for today or within the past 7 days.",
-          ),
-        ),
-      );
-      return;
-    }
-
-    if (selectedMood.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a mood")),
-      );
-      return;
-    }
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final now = DateTime.now();
-
-    final fullDateTime = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      widget.selectedDate.day,
-      now.hour,
-      now.minute,
-      now.second,
-      now.millisecond, 
-    );
-
-    final docId =
-        DateFormat("dd_MMMM_yyyy 'at' h_mm_ss_SSS_a").format(fullDateTime);
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('moods')
-        .doc(docId)
-        .set({
-      'emoji': selectedEmoji,
-      'mood': selectedMood,
-      'note': noteController.text.trim(),
-      'createdAt': Timestamp.fromDate(fullDateTime),
-    });
-
-    if (!mounted) return;
-    Navigator.pop(context);
-  }
-
-  @override
-  void dispose() {
-    noteController.dispose();
-    super.dispose();
-  }
+  String selectedMood = '';
 
   @override
   Widget build(BuildContext context) {
     final displayDate =
         "${widget.selectedDate.day} / ${widget.selectedDate.month} / ${widget.selectedDate.year}";
 
-    final canSave = canSaveForSelectedDate();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Add Mood',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold
+          ),
         ),
         centerTitle: true,
       ),
@@ -127,11 +55,14 @@ class _MoodAddPageState extends State<MoodAddPage> {
             Text(
               displayDate,
               style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+                color: Colors.teal,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 12),
+            
             const Text(
               'How are you feeling today?',
               style: TextStyle(
@@ -139,45 +70,28 @@ class _MoodAddPageState extends State<MoodAddPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                MoodIcon(
-                  icon: '😄',
-                  label: 'Happy',
-                  isSelected: selectedMood == 'Happy',
-                  onTap: () => selectMood('Happy', '😄'),
-                ),
-                MoodIcon(
-                  icon: '😐',
-                  label: 'Neutral',
-                  isSelected: selectedMood == 'Neutral',
-                  onTap: () => selectMood('Neutral', '😐'),
-                ),
-                MoodIcon(
-                  icon: '😢',
-                  label: 'Sad',
-                  isSelected: selectedMood == 'Sad',
-                  onTap: () => selectMood('Sad', '😢'),
-                ),
-                MoodIcon(
-                  icon: '😡',
-                  label: 'Angry',
-                  isSelected: selectedMood == 'Angry',
-                  onTap: () => selectMood('Angry', '😡'),
-                ),
-              ],
+            
+            const SizedBox(height: 16),
+            
+            MoodCarousel(
+              moods: moods,
+              onChanged: (mood) {
+                selectedMood = mood;
+              },
             ),
-            const SizedBox(height: 32),
+
+            const SizedBox(height: 16),
+
             const Text(
               'Mood Diary',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
               ),
             ),
+
             const SizedBox(height: 12),
+
             Expanded(
               child: TextField(
                 controller: noteController,
@@ -190,13 +104,29 @@ class _MoodAddPageState extends State<MoodAddPage> {
                   ),
                 ),
               ),
-            ),
+            ),            
+            
             const SizedBox(height: 16),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: canSave ? saveMood : null,
-                child: const Text('Save Mood'),
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  side: const BorderSide(
+                    color: Colors.teal,
+                    width: 2,
+                  ),
+                ),
+                onPressed: saveMood,
+                child: const Text(
+                  'Save Mood',
+                  style: TextStyle(
+                    color: Colors.teal,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600
+                  ),
+                ),
               ),
             ),
           ],
@@ -204,43 +134,278 @@ class _MoodAddPageState extends State<MoodAddPage> {
       ),
     );
   }
+
+  Future<void> saveMood() async {
+    if (selectedMood.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select mood")),
+      );
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final dateKey = DateFormat("yyyy-MM-dd").format(widget.selectedDate);
+
+    final docRef = FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .collection("moods")
+        .doc(dateKey);
+
+    final snapshot = await docRef.get();
+
+    List entries = [];
+
+    if (snapshot.exists) {
+      entries = List.from(snapshot.data()!["entries"]);
+    }
+
+    final entry = {
+      "id": DateTime.now().millisecondsSinceEpoch,
+      "mood": selectedMood,
+      "score": MoodCalculator.moodScore[selectedMood],
+      "note": noteController.text.trim(),
+      "createdAt": Timestamp.now(),
+    };
+
+    entries.add(entry);
+
+    List<String> moodsList =
+        entries.map((e) => e["mood"].toString()).toList();
+
+    final avg = MoodCalculator.calculate(moodsList);
+
+    if (!snapshot.exists) {
+      // create new document
+      await docRef.set({
+        "averageMood": avg["averageMood"],
+        "averageScore": avg["averageScore"],
+        "entries": entries,
+        "createdAt": Timestamp.now(),
+        "updatedAt": Timestamp.now(),
+      });
+    } else {
+      // update lastest document
+      await docRef.update({
+        "averageMood": avg["averageMood"],
+        "averageScore": avg["averageScore"],
+        "entries": entries,
+        "updatedAt": Timestamp.now(),
+      });
+    }
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
 }
 
-class MoodIcon extends StatelessWidget {
-  final String icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
+class MoodCarousel extends StatefulWidget {
+  final List<Map<String,String>> moods;
+  final Function(String mood) onChanged;
 
-  const MoodIcon({
+  const MoodCarousel({
     super.key,
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
+    required this.moods,
+    required this.onChanged,
+  });
+
+  @override
+  State<MoodCarousel> createState() => _MoodCarouselState();
+}
+
+class _MoodCarouselState extends State<MoodCarousel> {
+  late PageController _pageController;
+  int currentIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _pageController = PageController(
+      initialPage: 1,
+      viewportFraction: 0.35,
+    );
+
+    currentIndex = 1;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onChanged(widget.moods[currentIndex]["label"]!);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(  
+      child: SizedBox(
+        height: 120,
+        child: Row(
+          children: [
+            // chevron left
+            SizedBox(
+              width: 30,
+              child: currentIndex > 0
+                  ? Center(
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(
+                          Icons.chevron_left,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          _pageController.animateToPage(
+                            currentIndex - 1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        },
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+
+            // mood carousel
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.moods.length,
+                onPageChanged: (i) {
+                  setState(() {
+                    currentIndex = i;
+                  });
+                  widget.onChanged(widget.moods[i]["label"]!);
+                },
+                itemBuilder: (_, i) {
+                  final mood = widget.moods[i];
+                  final isCenter = i == currentIndex;
+                  return AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: isCenter ? 1 : 0.7,
+                    child: AnimatedScale(
+                      scale: isCenter ? 1.2 : 0.8,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            mood["image"]!,
+                            height: isCenter ? 70 : 50,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            mood["label"]!,
+                            style: TextStyle(
+                              fontSize: isCenter ? 16 : 13,
+                              fontWeight: isCenter
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // chevron right
+            SizedBox(
+              width: 30,
+              child: currentIndex < widget.moods.length - 1
+                  ? Center(
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(
+                          Icons.chevron_right,
+                          size: 28,
+                        ),
+                        onPressed: () {
+                          _pageController.animateToPage(
+                            currentIndex + 1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        },
+                      ),
+                    )
+                  : const SizedBox(),
+            )
+          ]
+        )
+      )
+    );
+  }
+}
+
+class SaveButton extends StatelessWidget {
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  const SaveButton({
+    super.key,
+    required this.enabled,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 32)),
-            const SizedBox(height: 6),
-            Text(label),
-          ],
-        ),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: enabled ? onPressed : null,
+        child: const Text("Save Mood"),
       ),
     );
+  }
+}
+
+class MoodCalculator {
+  static const Map<String, int> moodScore = {
+    "Ecstatic": 5,
+    "Excited": 4,
+    "Happy": 3,
+    "Calm": 1,
+    "Bored": -1,
+    "Tired": -2,
+    "Worried": -3,
+    "Sad": -4,
+    "Stressed": -5,
+  };
+
+  // calculate average score from mood list
+  static double calculateAverageScore(List<String> moods) {
+    if (moods.isEmpty) return 0;
+    int total = 0;
+    for (var mood in moods) {
+      total += moodScore[mood] ?? 0;
+    }
+    return total / moods.length;
+  }
+
+  // convert score  to mood
+  static String scoreToMood(double avg) {
+    if (avg >= 4.5) return "Ecstatic";
+    if (avg >= 3.5) return "Excited";
+    if (avg >= 2) return "Happy";
+    if (avg >= 0) return "Calm";
+    if (avg >= -1.5) return "Bored";
+    if (avg >= -2.5) return "Tired";
+    if (avg >= -3.5) return "Worried";
+    if (avg >= -4.5) return "Sad";
+    return "Stressed";
+  }
+
+  // cal score and mood
+  static Map<String, dynamic> calculate(List<String> moods) {
+    double avgScore = calculateAverageScore(moods);
+    String avgMood = scoreToMood(avgScore);
+    return {
+      "averageScore": avgScore,
+      "averageMood": avgMood,
+    };
   }
 }
