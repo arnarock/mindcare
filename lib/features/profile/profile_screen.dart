@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:mindcare/core/layout/app_layout.dart';
+import 'package:mindcare/features/auth/login_screen.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,64 +41,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(user?.uid)
-            .snapshots(),
+          .collection('users')
+          .doc(user?.uid)
+          .snapshots(),
       builder: (context, snapshot) {
+
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Center(child: Text("ไม่พบข้อมูลผู้ใช้"));
+          return const Scaffold(
+            body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
+          );
         }
 
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final firstName = data['firstName'] ?? '';
-        final lastName  = data['lastName'] ?? '';
+        final lastName = data['lastName'] ?? '';
         final fullName = "$firstName $lastName";
         final phoneNumber = data['phone'] ?? '';
 
-    return AppLayout(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
+        return AppLayout(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
 
-            /// ---------------- Avatar Section ----------------
-            const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.teal.withOpacity(0.25),
-                    blurRadius: 25,
-                    spreadRadius: 5,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.teal.withOpacity(0.25),
+                        blurRadius: 25,
+                        spreadRadius: 5,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: const CircleAvatar(
-                radius: 55,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Colors.teal,
+                  child: const CircleAvatar(
+                    radius: 55,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person,
+                      size: 60,
+                      color: Colors.teal,
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            const SizedBox(height: 15),
+                const SizedBox(height: 15),
 
-            Text(
+                Text(
                   fullName,
-              style: const TextStyle(
-                fontSize: 16,
+                  style: const TextStyle(
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
-              ),
-            ),
+                  ),
+                ),
+
                 Text(
                   user?.email ?? "-",
                   style: const TextStyle(
@@ -124,11 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: fullName,
                       ),
 
-                      const Divider(
-                        height: 1,
-                        indent: 16,
-                        endIndent: 16,
-                      ),
+                      const Divider(height: 1, indent: 16, endIndent: 16),
 
                       _infoCard(
                         icon: Icons.call,
@@ -136,84 +138,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: phoneNumber,
                       ),
 
-                      const Divider(
-                        height: 1,
-                        indent: 16,
-                        endIndent: 16,
-                      ),
+                      const Divider(height: 1, indent: 16, endIndent: 16),
 
-            _infoCard(
-              icon: Icons.email,
+                      _infoCard(
+                        icon: Icons.email,
                         title: "Email",
-              value: user?.email ?? "-",
+                        value: user?.email ?? "-",
                       ),
                     ],
                   ),
-            ),
+                ),
 
-            const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
+                if (user != null && !user.emailVerified)
+                  _warningCard()
+                else
+                  _successCard(),
 
-                // Verification Status 
-            if (user != null && !user.emailVerified)
-              _warningCard()
-            else
-              _successCard(),
+                const SizedBox(height: 20),
 
-            const SizedBox(height: 20),
-
-                // Refresh Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: refreshUser,
+                    child: const Text("รีเฟรชสถานะ"),
                   ),
                 ),
-                onPressed: refreshUser,
-                child: const Text("รีเฟรชสถานะ"),
-              ),
-            ),
 
-            const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                // Logout 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  elevation: 0,
-                  side: const BorderSide(color: Colors.redAccent),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                // ---------------- Logout ----------------
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      elevation: 0,
+                      side: const BorderSide(color: Colors.redAccent),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: () async {
+
+                      await FirebaseAuth.instance.signOut();
+
+                      if (!mounted) return;
+
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LoginScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text(
+                      "Log Out",
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                },
-                child: const Text(
-                  "Log Out",
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
         );
-      }
+      },
     );
   }
 
-  /// ---------------- Info Card ----------------
   Widget _infoCard({
     required IconData icon,
     required String title,
@@ -230,8 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: const TextStyle(
-                        fontSize: 13, color: Colors.grey)),
+                    style: const TextStyle(fontSize: 13, color: Colors.grey)),
                 const SizedBox(height: 4),
                 Text(value,
                     style: const TextStyle(
@@ -245,7 +249,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// ---------------- Warning Card ----------------
   Widget _warningCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -272,7 +275,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// ---------------- Success Card ----------------
   Widget _successCard() {
     return Container(
       padding: const EdgeInsets.all(16),

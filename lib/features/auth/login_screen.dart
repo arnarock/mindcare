@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         size: 80, color: Colors.green),
                     const SizedBox(height: 16),
                     const Text(
-                      "WellCare",
+                      "MindCare+",
                       style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold),

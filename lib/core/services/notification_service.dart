@@ -9,11 +9,14 @@ class NotificationService {
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const settings = InitializationSettings(
-      android: android,
-    );
+    const settings = InitializationSettings(android: android);
 
     await _notifications.initialize(settings);
+
+    await _notifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
   }
 
   static Future show(String title, String body) async {
@@ -28,7 +31,7 @@ class NotificationService {
     const details = NotificationDetails(android: android);
 
     await _notifications.show(
-      0,
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       details,

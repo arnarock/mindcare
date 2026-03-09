@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:mindcare/core/layout/app_layout.dart';
 import 'package:mindcare/features/mood/mood_calendar.dart';
-import 'package:mindcare/features/profile/profile_screen.dart';
 import 'package:mindcare/features/meditation/meditation_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
 
@@ -54,12 +53,13 @@ class HomePage extends StatelessWidget {
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final firstName = data['firstName'] ?? '';
 
-        return Scaffold(
-          backgroundColor: const Color(0xFFF2F5F7),
-          body: SafeArea(
+        
+        return AppLayout(
+          isHome: true,
+          child: Container(
+            color: const Color(0xFFF2F5F7),
             child: Column(
               children: [
-                _header(context),
                 const SizedBox(height: 12),
                 Expanded(
                   child: SingleChildScrollView(
@@ -131,62 +131,13 @@ class HomePage extends StatelessWidget {
             ),
           ),
         );
+
+
       },
     );
   }
 
-  // ---------------- HEADER ----------------
-  Widget _header(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'MindCare+',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
-          ),
-          Row(
-            children: [
-              const Icon(Icons.notifications_none),
-              const SizedBox(width: 12),
-
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ProfileScreen(),
-                    ),
-                  );
-                },
-                child: const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.teal,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.red),
-                tooltip: 'Log out',
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   // ---------------- TODAY MOOD ----------------
   Widget _todayMoodCard(String firstName) {
