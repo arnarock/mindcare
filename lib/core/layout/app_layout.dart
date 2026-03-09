@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mindcare/features/home/home.dart';
 import 'package:mindcare/features/profile/profile_screen.dart';
+import 'package:mindcare/core/services/mood_notification_helper.dart';
 
 class AppLayout extends StatelessWidget {
   final Widget child;
@@ -58,7 +59,14 @@ Widget _header(BuildContext context, {bool isHome = false}) {
         ),
         Row(
           children: [
-            const Icon(Icons.notifications_none),
+
+            IconButton(
+              icon: const Icon(Icons.notifications_none),
+              onPressed: () async {
+                await MoodNotificationHelper.sendTodayMoodNotification();
+              },
+            ),
+
             const SizedBox(width: 12),
 
             InkWell(
@@ -79,8 +87,6 @@ Widget _header(BuildContext context, {bool isHome = false}) {
             ),
 
             const SizedBox(width: 12),
-
-            
           ],
         ),
       ],

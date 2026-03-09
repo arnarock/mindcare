@@ -13,11 +13,9 @@ class MoodCalendarPage extends StatefulWidget {
 }
 
 class _MoodCalendarPageState extends State<MoodCalendarPage> {
-  final PageController _pageController =
-      PageController(initialPage: 1000);
-
-  final DateTime baseDate = DateTime.now();
+  late PageController _pageController;
   late DateTime currentMonth;
+  int selectedYear = DateTime.now().year;
 
   static const Map<String, String> moodImages = {
     "Ecstatic": "assets/images/moods/mood_ecstatic.png",
@@ -32,19 +30,18 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
   void initState() {
     super.initState();
     currentMonth = DateTime.now();
+    _pageController = PageController(
+      initialPage: DateTime.now().month - 1,
+    );
   }
 
-  DateTime getMonth(int pageIndex) {
-    return DateTime(
-      baseDate.year,
-      baseDate.month + (pageIndex - 1000),
-    );
+  DateTime getMonth(int index) {
+    return DateTime(selectedYear, index + 1);
   }
 
   bool canAddMood() {
     final now = DateTime.now();
-    return currentMonth.year == now.year &&
-        currentMonth.month == now.month;
+    return currentMonth.year == now.year && currentMonth.month == now.month;
   }
 
   @override
@@ -63,6 +60,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
+            itemCount: 12,
             onPageChanged: (index) {
               setState(() {
                 currentMonth = getMonth(index);
@@ -73,7 +71,6 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
               return _buildMonthView(user.uid, monthDate);
             },
           ),
-
           Positioned(
             bottom: 20,
             left: 0,
@@ -83,18 +80,13 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                 onPressed: canAddMood()
                     ? () async {
                         final now = DateTime.now();
-                        final today = DateTime(
-                          now.year,
-                          now.month,
-                          now.day,
-                        );
+                        final today = DateTime(now.year, now.month, now.day);
 
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => MoodAddPage(
-                              selectedDate: today,
-                            ),
+                            builder: (_) =>
+                                MoodAddPage(selectedDate: today),
                           ),
                         );
 
@@ -111,101 +103,218 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
   }
 
   Widget _buildMonthView(String uid, DateTime monthDate) {
-    final firstDay =
-        DateTime(monthDate.year, monthDate.month, 1);
-    final nextMonth =
-        DateTime(monthDate.year, monthDate.month + 1, 1);
+    final firstDay = DateTime(monthDate.year, monthDate.month, 1);
+    final nextMonth = DateTime(monthDate.year, monthDate.month + 1, 1);
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .collection('moods')
+          .where(FieldPath.documentId,
+              isGreaterThanOrEqualTo: _dateKey(firstDay))
+          .where(FieldPath.documentId, isLessThan: _dateKey(nextMonth))
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Center(
-              child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final docs = snapshot.data!.docs.where((doc) {
-          final date = DateTime.parse(doc.id);
-          return date.isAfter(firstDay.subtract(const Duration(days: 1))) &&
-                 date.isBefore(nextMonth);
-        }).toList();
+        final docs = snapshot.data!.docs;
+
+        Map<int, Map<String, dynamic>> moodMap = {};
+
+        for (var doc in docs) {
+          try {
+            final date = DateTime.parse(doc.id);
+            moodMap[date.day] = doc.data() as Map<String, dynamic>;
+          } catch (_) {}
+        }
+
+        int daysInMonth =
+            DateTime(monthDate.year, monthDate.month + 1, 0).day;
+
+        int startWeekday = firstDay.weekday;
+
+        List<int?> days = [];
+
+        for (int i = 1; i < startWeekday; i++) {
+          days.add(null);
+        }
+
+        for (int day = 1; day <= daysInMonth; day++) {
+          days.add(day);
+        }
 
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Column(
               children: [
                 const SizedBox(height: 16),
 
-                Text(
-                  "${_monthName(monthDate.month)} ${monthDate.year}",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _monthName(monthDate.month),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<int>(
+                      onSelected: (year) {
+                        setState(() {
+                          selectedYear = year;
+                          currentMonth = DateTime(year, 1);
+                        });
+                        _pageController.jumpToPage(0);
+                      },
+                      itemBuilder: (context) => List.generate(
+                        5,
+                        (i) {
+                          int year = 2024 + i;
+                          return PopupMenuItem(
+                            value: year,
+                            child: Text("$year"),
+                          );
+                        },
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            "$selectedYear",
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
-                if (docs.isEmpty)
-                  const Text(
-                    "No moods this month",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
-                  ),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text("Mon"),
+                    Text("Tue"),
+                    Text("Wed"),
+                    Text("Thu"),
+                    Text("Fri"),
+                    Text("Sat"),
+                    Text("Sun"),
+                  ],
+                ),
 
-                if (docs.isNotEmpty)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: docs.map((doc) {
-                            final data = doc.data() as Map<String, dynamic>;
+                const SizedBox(height: 12),
 
-                            final avgMood = data["averageMood"] ?? "Calm";
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: days.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 7,
+                      childAspectRatio: 0.65,
+                    ),
+                    itemBuilder: (context, index) {
+                      final day = days[index];
 
-                            final imagePath =
-                                moodImages[avgMood] ??
-                                "assets/images/moods/mood_calm.png";
+                      if (day == null) {
+                        return const SizedBox();
+                      }
 
-                            final date = DateTime.parse(doc.id);
+                      final now = DateTime.now();
 
-                            return GestureDetector(
-                              onTap: () {
+                      final isToday =
+                          day == now.day &&
+                          monthDate.month == now.month &&
+                          monthDate.year == now.year;
+
+                      final moodData = moodMap[day];
+                      final mood = moodData?["averageMood"];
+                      final imagePath = moodImages[mood];
+
+                      final date =
+                          DateTime(monthDate.year, monthDate.month, day);
+
+                      return GestureDetector(
+                        onTap: moodData == null
+                            ? null
+                            : () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) =>
-                                      MoodDiaryPage(selectedDate: date),
+                                        MoodDiaryPage(selectedDate: date),
                                   ),
                                 );
                               },
-                              child: Image.asset(
-                                imagePath,
-                                width: 50,
-                                height: 50,
+                        child: Container(
+                          margin: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                            border: isToday
+                                ? Border.all(color: Colors.red, width: 2)
+                                : null,
+                          ),
+                          child: Stack(
+                            children: [
+                             if (imagePath != null)
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final size = constraints.maxWidth * 0.90;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Center(
+                                      child: Image.asset(
+                                        imagePath,
+                                        width: size,
+                                        height: size,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          }).toList(),
+                              Positioned(
+                                top: 4,
+                                right: 6,
+                                child: Text(
+                                  "$day",
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
+                ),
               ],
             ),
           ),
         );
       },
     );
+  }
+
+  String _dateKey(DateTime date) {
+    return "${date.year.toString().padLeft(4, '0')}-"
+        "${date.month.toString().padLeft(2, '0')}-"
+        "${date.day.toString().padLeft(2, '0')}";
   }
 
   String _monthName(int month) {
