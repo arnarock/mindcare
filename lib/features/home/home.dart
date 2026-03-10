@@ -6,6 +6,9 @@ import 'package:mindcare/core/layout/app_layout.dart';
 import 'package:mindcare/features/mood/mood_calendar.dart';
 import 'package:mindcare/features/meditation/meditation_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
+import 'package:mindcare/core/services/mood_stats_service.dart';
+import 'package:mindcare/core/services/mood_notification_helper.dart';
+import 'package:mindcare/core/constants/mood_images.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -60,6 +63,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  String _moodMessage(double avg) {
+
+  if (avg >= 4) {
+    return "You're shining this month ✨";
+  }
+
+  if (avg >= 2) {
+    return "You're doing great, keep it up 💙";
+  }
+
+  if (avg >= 0) {
+    return "Things seem balanced and calm 🌿";
+  }
+
+  if (avg >= -2) {
+    return "Take a little time for yourself today 🤍";
+  }
+
+  return "It's okay to slow down and rest 💛";
+}
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -105,11 +128,14 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         _greetingCard(firstName),
 
-                        const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                        _inspirationCard(),
+                      _inspirationCard(),
 
-                        const SizedBox(height: 16),
+                      const SizedBox(height: 16),
+
+                      
+                      const SizedBox(height: 16),
 
                         Row(
                           children: [
@@ -275,7 +301,7 @@ class _HomePageState extends State<HomePage> {
           image: AssetImage("assets/images/bg/greeting.png"),
           fit: BoxFit.cover,
 
-          // ทำให้พื้นหลังมืดลงเพื่อให้ตัวหนังสือชัด
+
           colorFilter: ColorFilter.mode(
             Colors.black38,
             BlendMode.darken,
@@ -342,29 +368,81 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _moodSummaryCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text("Mood Summary",
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          Icon(Icons.show_chart, size: 40, color: Colors.blue),
-          SizedBox(height: 10),
-          Text("80% Healthy days"),
-        ],
-      ),
+    return FutureBuilder<double>(
+      future: MoodStatsService.getAverageMood(),
+      builder: (context, snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: Text("No mood data"));
+        }
+
+        double avg = snapshot.data!;
+
+        String mood = MoodNotificationHelper.scoreToMood(avg);
+
+        String image =
+            MoodImages.map[mood] ??
+            "assets/images/moods/mood_calm.png";
+
+        const months = [
+          '',
+          'January','February','March','April','May','June',
+          'July','August','September','October','November','December'
+        ];
+
+        String month = months[DateTime.now().month];
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              Text(
+                "Mood Summary • $month",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Image.asset(
+                image,
+                height: 36,
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                _moodMessage(avg),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black45,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+            ],
+          ),
+        );
+      },
     );
   }
 
