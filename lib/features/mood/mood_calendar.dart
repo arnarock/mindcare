@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindcare/features/mood/mood_add.dart';
 import 'package:mindcare/features/mood/mood_diary.dart';
 import 'package:mindcare/core/layout/app_layout.dart';
+import 'package:mindcare/core/constants/mood_images.dart';
 
 class MoodCalendarPage extends StatefulWidget {
   const MoodCalendarPage({super.key});
@@ -16,15 +17,6 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
   late PageController _pageController;
   late DateTime currentMonth;
   int selectedYear = DateTime.now().year;
-
-  static const Map<String, String> moodImages = {
-    "Ecstatic": "assets/images/moods/mood_ecstatic.png",
-    "Happy": "assets/images/moods/mood_happy.png",
-    "Calm": "assets/images/moods/mood_calm.png",
-    "Bored": "assets/images/moods/mood_bored.png",
-    "Tired": "assets/images/moods/mood_tired.png",
-    "Worried": "assets/images/moods/mood_worried.png",
-  };
 
   @override
   void initState() {
@@ -239,7 +231,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
 
                       final moodData = moodMap[day];
                       final mood = moodData?["averageMood"];
-                      final imagePath = moodImages[mood];
+                      final imagePath = MoodImages.map[mood];
 
                       final date =
                           DateTime(monthDate.year, monthDate.month, day);

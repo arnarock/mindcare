@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:mindcare/core/constants/mood_images.dart';
 
 class MoodDiaryPage extends StatelessWidget {
   final DateTime selectedDate;
@@ -10,18 +11,6 @@ class MoodDiaryPage extends StatelessWidget {
     super.key,
     required this.selectedDate,
   });
-
-  static const moodImages = {
-    "Ecstatic": "assets/images/moods/mood_ecstatic.png",
-    "Happy": "assets/images/moods/mood_happy.png",
-    "Calm": "assets/images/moods/mood_calm.png",
-    "Bored": "assets/images/moods/mood_bored.png",
-    "Tired": "assets/images/moods/mood_tired.png",
-    "Worried": "assets/images/moods/mood_worried.png",
-    "Excited": "assets/images/moods/mood_excited.png",
-    "Sad": "assets/images/moods/mood_sad.png",
-    "Stressed": "assets/images/moods/mood_stressed.png",
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +86,7 @@ class MoodDiaryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Image.asset(
-                        moodImages[avgMood] ?? "",
+                        MoodImages.map[avgMood] ?? "",
                         height: 70,
                       ),
                       const SizedBox(height: 8),
@@ -166,7 +155,7 @@ class MoodDiaryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Image.asset(
-                          moodImages[mood] ?? "",
+                          MoodImages.map[mood] ?? "",
                           height: 40,
                         ),
 
