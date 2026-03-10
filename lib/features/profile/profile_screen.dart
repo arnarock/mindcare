@@ -65,6 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final phoneNumber = data['phone'] ?? '';
 
         return AppLayout(
+          hideProfile: true,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
