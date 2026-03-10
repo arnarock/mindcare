@@ -1,7 +1,9 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+
+import 'package:mindcare/core/constants/mood_images.dart';
 
 class MoodAddPage extends StatefulWidget {
   final DateTime selectedDate;
@@ -18,16 +20,16 @@ class MoodAddPage extends StatefulWidget {
 class _MoodAddPageState extends State<MoodAddPage> {
   final TextEditingController noteController = TextEditingController();
 
-  final List<Map<String, String>> moods = [
-    {"image": "assets/images/moods/mood_ecstatic.png", "label": "Ecstatic"},
-    // {"image": "assets/images/moods/mood_excited.png", "label": "Excited"},
-    {"image": "assets/images/moods/mood_happy.png", "label": "Happy"},
-    {"image": "assets/images/moods/mood_calm.png", "label": "Calm"},
-    {"image": "assets/images/moods/mood_bored.png", "label": "Bored"},
-    {"image": "assets/images/moods/mood_tired.png", "label": "Tired"},
-    {"image": "assets/images/moods/mood_worried.png", "label": "Worried"},
-    // {"image": "assets/images/moods/mood_sad.png", "label": "Sad"},
-    // {"image": "assets/images/moods/mood_stressed.png", "label": "Stressed"},
+  final List<String> moods = [
+    "Ecstatic",
+    "Excited",
+    "Happy",
+    "Calm",
+    "Bored",
+    "Tired",
+    "Worried",
+    "Sad",
+    "Stressed",
   ];
 
   String selectedMood = '';
@@ -201,7 +203,7 @@ class _MoodAddPageState extends State<MoodAddPage> {
 }
 
 class MoodCarousel extends StatefulWidget {
-  final List<Map<String,String>> moods;
+  final List<String> moods;
   final Function(String mood) onChanged;
 
   const MoodCarousel({
@@ -216,21 +218,19 @@ class MoodCarousel extends StatefulWidget {
 
 class _MoodCarouselState extends State<MoodCarousel> {
   late PageController _pageController;
-  int currentIndex = 1;
+  int currentIndex = 2;
 
   @override
   void initState() {
     super.initState();
 
     _pageController = PageController(
-      initialPage: 1,
+      initialPage: 2,
       viewportFraction: 0.35,
     );
 
-    currentIndex = 1;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onChanged(widget.moods[currentIndex]["label"]!);
+      widget.onChanged(widget.moods[currentIndex]);
     });
   }
 
@@ -274,11 +274,12 @@ class _MoodCarouselState extends State<MoodCarousel> {
                   setState(() {
                     currentIndex = i;
                   });
-                  widget.onChanged(widget.moods[i]["label"]!);
+                  widget.onChanged(widget.moods[i]);
                 },
                 itemBuilder: (_, i) {
                   final mood = widget.moods[i];
                   final isCenter = i == currentIndex;
+    
                   return AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     opacity: isCenter ? 1 : 0.7,
@@ -290,12 +291,14 @@ class _MoodCarouselState extends State<MoodCarousel> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            mood["image"]!,
+                            MoodImages.map[mood]!,
                             height: isCenter ? 70 : 50,
                           ),
+
                           const SizedBox(height: 6),
+
                           Text(
-                            mood["label"]!,
+                            mood,
                             style: TextStyle(
                               fontSize: isCenter ? 16 : 13,
                               fontWeight: isCenter
