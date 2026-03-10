@@ -68,6 +68,10 @@ flutter:
     - assets/images/moods/mood_happy.png
     - assets/images/moods/mood_tired.png
     - assets/images/moods/mood_worried.png
+    - assets/images/bg/greeting.png
+    - assets/images/home/mood_tracking_icon.png
+    - assets/images/home/meditation_icon.png
+    - assets/images/home/psychiatrist_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
