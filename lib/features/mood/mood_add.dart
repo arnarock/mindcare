@@ -4,13 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:mindcare/core/constants/mood_images.dart';
+import 'package:mindcare/core/constants/mood_calculator.dart';
 
 class MoodAddPage extends StatefulWidget {
   final DateTime selectedDate;
+  final Map? editEntry;
 
   const MoodAddPage({
     super.key,
     required this.selectedDate,
+    this.editEntry
   });
 
   @override
@@ -35,14 +38,26 @@ class _MoodAddPageState extends State<MoodAddPage> {
   String selectedMood = '';
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.editEntry != null) {
+      selectedMood = widget.editEntry!["mood"];
+      noteController.text = widget.editEntry!["note"] ?? "";
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final displayDate =
         "${widget.selectedDate.day} / ${widget.selectedDate.month} / ${widget.selectedDate.year}";
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Add Mood',
+        title: Text(
+          widget.editEntry == null 
+            ? 'Add Mood' 
+            : 'Edit Mood',
           style: TextStyle(
             fontWeight: FontWeight.bold
           ),
@@ -77,8 +92,11 @@ class _MoodAddPageState extends State<MoodAddPage> {
             
             MoodCarousel(
               moods: moods,
+              initialMood: selectedMood,
               onChanged: (mood) {
-                selectedMood = mood;
+                setState(() {
+                  selectedMood = mood;
+                });
               },
             ),
 
@@ -164,15 +182,27 @@ class _MoodAddPageState extends State<MoodAddPage> {
       entries = List.from(snapshot.data()!["entries"]);
     }
 
-    final entry = {
-      "id": DateTime.now().millisecondsSinceEpoch,
-      "mood": selectedMood,
-      "score": MoodCalculator.moodScore[selectedMood],
-      "note": noteController.text.trim(),
-      "createdAt": Timestamp.now(),
-    };
-
-    entries.add(entry);
+    if (widget.editEntry != null) {
+      final index =
+          entries.indexWhere((e) => e["id"] == widget.editEntry!["id"]);
+      if (index != -1) {
+        entries[index] = {
+          ...widget.editEntry!,
+          "mood": selectedMood,
+          "score": MoodCalculator.moodScore[selectedMood],
+          "note": noteController.text.trim(),
+        };
+      }
+    } else {
+      final entry = {
+        "id": DateTime.now().millisecondsSinceEpoch,
+        "mood": selectedMood,
+        "score": MoodCalculator.moodScore[selectedMood],
+        "note": noteController.text.trim(),
+        "createdAt": Timestamp.now(),
+      };
+      entries.add(entry);
+    }
 
     List<String> moodsList =
         entries.map((e) => e["mood"].toString()).toList();
@@ -205,11 +235,13 @@ class _MoodAddPageState extends State<MoodAddPage> {
 class MoodCarousel extends StatefulWidget {
   final List<String> moods;
   final Function(String mood) onChanged;
+  final String? initialMood;
 
   const MoodCarousel({
     super.key,
     required this.moods,
     required this.onChanged,
+    this.initialMood
   });
 
   @override
@@ -224,8 +256,15 @@ class _MoodCarouselState extends State<MoodCarousel> {
   void initState() {
     super.initState();
 
+    if (widget.initialMood != null) {
+      final index = widget.moods.indexOf(widget.initialMood!);
+      if (index != -1) {
+        currentIndex = index;
+      }
+    }
+
     _pageController = PageController(
-      initialPage: 2,
+      initialPage: currentIndex,
       viewportFraction: 0.35,
     );
 
@@ -270,29 +309,28 @@ class _MoodCarouselState extends State<MoodCarousel> {
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: widget.moods.length,
-                onPageChanged: (i) {
+                onPageChanged: (index) {
                   setState(() {
-                    currentIndex = i;
+                    currentIndex = index;
                   });
-                  widget.onChanged(widget.moods[i]);
+                  widget.onChanged(widget.moods[index]);
                 },
-                itemBuilder: (_, i) {
-                  final mood = widget.moods[i];
-                  final isCenter = i == currentIndex;
-    
-                  return AnimatedOpacity(
+                itemBuilder: (context, index) {
+                  final mood = widget.moods[index];
+                  final isSelected = index == currentIndex;
+                  return AnimatedScale(
+                    scale: isSelected ? 1.15 : 0.85,
                     duration: const Duration(milliseconds: 250),
-                    opacity: isCenter ? 1 : 0.7,
-                    child: AnimatedScale(
-                      scale: isCenter ? 1.2 : 0.8,
+                    curve: Curves.easeOut,
+                    child: AnimatedOpacity(
+                      opacity: isSelected ? 1 : 0.5,
                       duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOut,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
                             MoodImages.map[mood]!,
-                            height: isCenter ? 70 : 50,
+                            height: isSelected ? 72 : 52,
                           ),
 
                           const SizedBox(height: 6),
@@ -300,12 +338,12 @@ class _MoodCarouselState extends State<MoodCarousel> {
                           Text(
                             mood,
                             style: TextStyle(
-                              fontSize: isCenter ? 16 : 13,
-                              fontWeight: isCenter
+                              fontSize: isSelected ? 16 : 13,
+                              fontWeight: isSelected
                                   ? FontWeight.bold
-                                  : FontWeight.normal,
+                                  : FontWeight.w400,
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -313,7 +351,7 @@ class _MoodCarouselState extends State<MoodCarousel> {
                 },
               ),
             ),
-
+            
             // chevron right
             SizedBox(
               width: 30,
@@ -363,52 +401,5 @@ class SaveButton extends StatelessWidget {
         child: const Text("Save Mood"),
       ),
     );
-  }
-}
-
-class MoodCalculator {
-  static const Map<String, int> moodScore = {
-    "Ecstatic": 5,
-    "Excited": 4,
-    "Happy": 3,
-    "Calm": 1,
-    "Bored": -1,
-    "Tired": -2,
-    "Worried": -3,
-    "Sad": -4,
-    "Stressed": -5,
-  };
-
-  // calculate average score from mood list
-  static double calculateAverageScore(List<String> moods) {
-    if (moods.isEmpty) return 0;
-    int total = 0;
-    for (var mood in moods) {
-      total += moodScore[mood] ?? 0;
-    }
-    return total / moods.length;
-  }
-
-  // convert score  to mood
-  static String scoreToMood(double avg) {
-    if (avg >= 4.5) return "Ecstatic";
-    if (avg >= 3.5) return "Excited";
-    if (avg >= 2) return "Happy";
-    if (avg >= 0) return "Calm";
-    if (avg >= -1.5) return "Bored";
-    if (avg >= -2.5) return "Tired";
-    if (avg >= -3.5) return "Worried";
-    if (avg >= -4.5) return "Sad";
-    return "Stressed";
-  }
-
-  // cal score and mood
-  static Map<String, dynamic> calculate(List<String> moods) {
-    double avgScore = calculateAverageScore(moods);
-    String avgMood = scoreToMood(avgScore);
-    return {
-      "averageScore": avgScore,
-      "averageMood": avgMood,
-    };
   }
 }

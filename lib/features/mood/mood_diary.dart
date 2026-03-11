@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:mindcare/core/constants/mood_images.dart';
 
-class MoodDiaryPage extends StatelessWidget {
+import 'package:mindcare/core/constants/mood_images.dart';
+import 'package:mindcare/core/constants/mood_calculator.dart';
+import 'package:mindcare/features/mood/mood_add.dart';
+
+class MoodDiaryPage extends StatefulWidget {
   final DateTime selectedDate;
 
   const MoodDiaryPage({
@@ -13,8 +16,31 @@ class MoodDiaryPage extends StatelessWidget {
   });
 
   @override
+  State<MoodDiaryPage> createState() => _MoodDiaryPageState();
+}
+
+class _MoodDiaryPageState extends State<MoodDiaryPage> {
+  late DateTime currentDate;
+
+  bool isToday(DateTime date) {
+    final today = DateTime.now();
+    return date.year == today.year &&
+      date.month == today.month &&
+      date.day == today.day;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    currentDate = widget.selectedDate;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final displayDate =
+      "${currentDate.day} / ${currentDate.month} / ${currentDate.year}";
+    final dateKey = DateFormat("yyyy-MM-dd").format(currentDate);
 
     if (user == null) {
       return const Scaffold(
@@ -22,11 +48,14 @@ class MoodDiaryPage extends StatelessWidget {
       );
     }
 
-    final dateKey = DateFormat("yyyy-MM-dd").format(selectedDate);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Mood Diary"),
+        title: const Text(
+          "Mood Diary",
+          style: TextStyle(
+            fontWeight: FontWeight.bold
+          ),
+        ),
         centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -42,31 +71,15 @@ class MoodDiaryPage extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
+          
+          List entries = [];
+          String? avgMood;
 
-          if (!snapshot.data!.exists) {
-            return const Center(
-              child: Text("No mood recorded"),
-            );
+          if (snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            entries = List.from(data["entries"]);
+            avgMood = data["averageMood"];
           }
-
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          final entries = List.from(data["entries"]);
-
-          final avgMood = data["averageMood"];
-          final avgScore = data["averageScore"];
-
-          final scores = entries.map((e) => e["score"] ?? 0).toList();
-          final formulaLeft = scores.join(" + ");
-
-          double total = 0;
-          for (var s in scores) {
-            total += s;
-          }
-
-          final average = scores.isEmpty ? 0 : total / scores.length;
-
-          final formulaText =
-              "($formulaLeft) / ${scores.length} = ${average.toStringAsFixed(2)}";
 
           return ListView(
             padding: const EdgeInsets.all(20),
@@ -77,42 +90,72 @@ class MoodDiaryPage extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      const Text(
-                        "Arna Test",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.chevron_left),
+                            onPressed: previousDay,
+                          ),
+
+                          InkWell(
+                            onTap: pickDate,
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              child: Text(
+                                displayDate,
+                                style: const TextStyle(
+                                  color: Colors.teal,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          isToday(currentDate)
+                            ? const SizedBox(width: 48)
+                            : IconButton(
+                                icon: const Icon(Icons.chevron_right),
+                                onPressed: nextDay,
+                              )
+                        ],
                       ),
+
                       const SizedBox(height: 16),
-                      Image.asset(
-                        MoodImages.map[avgMood] ?? "",
-                        height: 70,
-                      ),
+
+                      entries.isEmpty
+                        ? const Icon(
+                            Icons.sentiment_neutral,
+                            size: 70,
+                            color: Colors.grey,
+                          )
+                        : Image.asset(
+                            MoodImages.map[avgMood] ?? "",
+                            height: 70,
+                          ),
+
                       const SizedBox(height: 8),
+
                       Text(
-                        avgMood,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        entries.isEmpty 
+                          ? isToday(currentDate) 
+                            ? "No mood recorded today" 
+                            : "No mood recorded" 
+                          : avgMood!,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                       ),
+
                       const SizedBox(height: 6),
+                      
                       Text(
-                        "Score: ${avgScore.toStringAsFixed(2)}",
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        formulaText,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Today ${entries.length} Mood",
+                        isToday(currentDate) 
+                          ? "${entries.length} Mood Recorded Today"
+                          : "${entries.length} Mood Recorded",
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.grey,
@@ -125,96 +168,276 @@ class MoodDiaryPage extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              const Text(
-                "ALL Mood Today",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              if (!entries.isEmpty) 
+                const Text(
+                  "ALL Mood Today",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
+              
+                ...entries.map((entry) {
+                  final mood = entry["mood"] ?? "";
+                  final note = entry["note"] ?? "";
 
-              ...entries.map((entry) {
-                final mood = entry["mood"] ?? "";
-                final note = entry["note"] ?? "";
-                final score = entry["score"] ?? 0;
+                  String timeText = "";
+                  if (entry["createdAt"] != null) {
+                    final Timestamp ts = entry["createdAt"];
+                    final DateTime dt = ts.toDate();
+                    timeText = DateFormat("HH:mm").format(dt);
+                  }
 
-                String timeText = "";
-                if (entry["createdAt"] != null) {
-                final Timestamp ts = entry["createdAt"];
-                final DateTime dt = ts.toDate();
-                timeText = DateFormat("HH:mm").format(dt);
-              }
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            MoodImages.map[mood] ?? "",
+                            height: 40,
+                          ),
 
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          MoodImages.map[mood] ?? "",
-                          height: 40,
-                        ),
+                          const SizedBox(width: 12),
 
-                        const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      mood,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
 
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                                    const SizedBox(width: 8),
+
+                                    Text(
+                                      timeText,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                if (note.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    note,
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                ]
+                              ],
+                            ),
+                          ),
+
+                          Row (
                             children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    mood,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  const SizedBox(width: 8),
-
-                                  Text(
-                                    timeText,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-
-                                  const Spacer(),
-
-                                  Text(
-                                    "Score $score",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
-                                    ),
-                                  ),
-                                ],
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  size: 20
+                                ),
+                                onPressed: () => editMood(entry),
                               ),
-
-                              const SizedBox(height: 8),
-
-                              Text(
-                                note,
-                                style: const TextStyle(fontSize: 15),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  size: 20,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () => showDeleteDialog(entry),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+                        ],
+                      ),
+                    )
+                  );
+                }
+              ).toList(),
             ],
           );
         },
       ),
     );
+  }
+
+  void previousDay() {
+    setState(() {
+      currentDate = currentDate.subtract(const Duration(days: 1));
+    });
+  }
+
+  void nextDay() {
+    setState(() {
+      currentDate = currentDate.add(const Duration(days: 1));
+    });
+  }
+
+  Future<void> pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: currentDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        currentDate = picked;
+      });
+    }
+  }
+
+  Future<void> editMood(Map entry) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MoodAddPage(
+          selectedDate: currentDate,
+          editEntry: entry,
+        ),
+      ),
+    );
+  }
+
+  Future<void> showDeleteDialog(Map entry) async {
+    final mood = entry["mood"] ?? "";
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                MoodImages.map[mood] ?? "",
+                height: 60,
+              ),
+
+              const SizedBox(height: 12),
+
+              const Text(
+                "Delete Mood?",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+            
+              Text(
+                mood,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              const Text(
+                "Are you sure you want to \ndelete this mood entry?",
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.teal,
+                ),
+              ),
+            ),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+                await deleteMood(entry);
+              },
+              child: const Text(
+                "Delete",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteMood(Map entry) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final dateKey = DateFormat("yyyy-MM-dd").format(currentDate);
+
+    final docRef = FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .collection("moods")
+        .doc(dateKey);
+
+    final snapshot = await docRef.get();
+
+    if (!snapshot.exists) return;
+
+    List entries = List.from(snapshot.data()!["entries"]);
+
+    entries.removeWhere((e) => e["id"] == entry["id"]);
+
+    if (entries.isEmpty) {
+      await docRef.update({
+        "entries": [],
+        "averageMood": null,
+        "averageScore": 0,
+      });
+      return;
+    }
+
+    List<String> moods =
+        entries.map((e) => e["mood"].toString()).toList();
+
+    final avg = MoodCalculator.calculate(moods);
+
+    await docRef.update({
+      "entries": entries,
+      "averageMood": avg["averageMood"],
+      "averageScore": avg["averageScore"],
+      "updatedAt": Timestamp.now(),
+    });
   }
 }
