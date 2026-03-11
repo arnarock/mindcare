@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+
 import 'package:mindcare/core/layout/app_layout.dart';
+import 'package:mindcare/core/constants/mood_images.dart';
+import 'package:mindcare/core/services/mood_stats_service.dart';
+import 'package:mindcare/core/services/mood_notification_helper.dart';
 import 'package:mindcare/features/mood/mood_calendar.dart';
 import 'package:mindcare/features/meditation/meditation_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
-import 'package:mindcare/core/services/mood_stats_service.dart';
-import 'package:mindcare/core/services/mood_notification_helper.dart';
-import 'package:mindcare/core/constants/mood_images.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,38 +19,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final PageController _controller = PageController();
+
   int _page = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _autoSlide();
-  }
-
-  void _autoSlide() {
-    Future.delayed(const Duration(seconds: 5), () {
-
-      if (!mounted) return;
-
-      _page++;
-
-      if (_page > 1) {
-        _page = 0;
-      }
-
-      if (_controller.hasClients) {
-        _controller.animateToPage(
-          _page,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
-
-      _autoSlide();
-    });
-  }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -64,25 +36,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _moodMessage(double avg) {
-
-  if (avg >= 4) {
-    return "You're shining this month ✨";
+    if (avg >= 4) {
+      return "You're shining this month ✨";
+    }
+    if (avg >= 2) {
+      return "You're doing great, keep it up 💙";
+    }
+    if (avg >= 0) {
+      return "Things seem balanced and calm 🌿";
+    }
+    if (avg >= -2) {
+      return "Take a little time for yourself today 🤍";
+    }
+    return "It's okay to slow down and rest 💛";
   }
 
-  if (avg >= 2) {
-    return "You're doing great, keep it up 💙";
+  @override
+  void initState() {
+    super.initState();
+    _autoSlide();
   }
 
-  if (avg >= 0) {
-    return "Things seem balanced and calm 🌿";
+  void _autoSlide() {
+    Future.delayed(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      _page++;
+      if (_page > 1) {
+        _page = 0;
+      }
+      if (_controller.hasClients) {
+        _controller.animateToPage(
+          _page,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+      _autoSlide();
+    });
   }
 
-  if (avg >= -2) {
-    return "Take a little time for yourself today 🤍";
-  }
-
-  return "It's okay to slow down and rest 💛";
-}
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -99,6 +91,9 @@ class _HomePageState extends State<HomePage> {
           .doc(user.uid)
           .snapshots(),
       builder: (context, snapshot) {
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final firstName = data['firstName'] ?? '';
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -110,9 +105,6 @@ class _HomePageState extends State<HomePage> {
             body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
           );
         }
-
-        final data = snapshot.data!.data() as Map<String, dynamic>;
-        final firstName = data['firstName'] ?? '';
 
         return AppLayout(
           isHome: true,
@@ -128,18 +120,14 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         _greetingCard(firstName),
 
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      _inspirationCard(),
+                        _inspirationCard(),
 
-                      const SizedBox(height: 16),
-
-                      
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         Row(
                           children: [
-
                             Expanded(
                               child: SizedBox(
                                 height: 140,
@@ -155,7 +143,6 @@ class _HomePageState extends State<HomePage> {
                                 child: _streakCard(),
                               ),
                             ),
-
                           ],
                         ),
 
@@ -164,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                         _menuCard(
                           title: 'Mood Tracking',
                           subtitle: 'How are you feeling today?',
-                          icon: '😊',
+                          iconPath: 'assets/images/home/mood_tracking_icon.png',
                           gradient: const LinearGradient(
                             colors: [
                               Color(0xFFDFF6FF),
@@ -184,9 +171,9 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 14),
 
                         _menuCard(
-                          title: 'Deep Breathing',
+                          title: 'Meditation',
                           subtitle: 'Relax in 5 minutes',
-                          icon: '🪷',
+                          iconPath: 'assets/images/home/meditation_icon.png',
                           gradient: const LinearGradient(
                             colors: [
                               Color(0xFFE8F8F5),
@@ -208,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                         _menuCard(
                           title: 'Psychiatrist Chat',
                           subtitle: 'Talk to a professional',
-                          icon: '💗',
+                          iconPath: 'assets/images/home/psychiatrist_icon.png',
                           gradient: const LinearGradient(
                             colors: [
                               Color(0xFFE3F2FD),
@@ -224,8 +211,6 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                         ),
-
-                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
@@ -258,9 +243,15 @@ class _HomePageState extends State<HomePage> {
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Daily Inspiration",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Daily Inspiration",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold
+                  )
+                ),
+
                 SizedBox(height: 6),
+
                 Text("Small steps every day lead to big changes."),
               ],
             ),
@@ -280,9 +271,15 @@ class _HomePageState extends State<HomePage> {
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Mental Health Tip",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "Mental Health Tip",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold
+                    )
+                  ),
+
                 SizedBox(height: 6),
+
                 Text("Take 5 deep breaths when you feel stressed."),
               ],
             ),
@@ -300,8 +297,6 @@ class _HomePageState extends State<HomePage> {
         image: const DecorationImage(
           image: AssetImage("assets/images/bg/greeting.png"),
           fit: BoxFit.cover,
-
-
           colorFilter: ColorFilter.mode(
             Colors.black38,
             BlendMode.darken,
@@ -313,9 +308,14 @@ class _HomePageState extends State<HomePage> {
           const CircleAvatar(
             radius: 26,
             backgroundColor: Colors.white24,
-            child: Icon(Icons.person, color: Colors.white),
+            child: Icon(
+              Icons.person, 
+              color: Colors.white
+            ),
           ),
+
           const SizedBox(width: 14),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -332,6 +332,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+
               Text(
                 "$firstName ✨",
                 style: const TextStyle(
@@ -347,6 +348,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+
               const Text(
                 "Take a deep breath today",
                 style: TextStyle(
@@ -371,7 +373,6 @@ class _HomePageState extends State<HomePage> {
     return FutureBuilder<double>(
       future: MoodStatsService.getAverageMood(),
       builder: (context, snapshot) {
-
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -411,7 +412,6 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               Text(
                 "Mood Summary • $month",
                 style: const TextStyle(
@@ -462,11 +462,22 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
-          Text("Meditation Streak",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            "Meditation Streak",
+            style: TextStyle(
+              fontWeight: FontWeight.bold
+            )
+          ),
+
           SizedBox(height: 10),
-          Text("🙂🙂🙂 → 3d", style: TextStyle(fontSize: 18)),
+
+          Text(
+            "🙂🙂🙂 → 3d", 
+            style: TextStyle(fontSize: 18)
+          ),
+
           SizedBox(height: 6),
+          
           Text("Great job!"),
         ],
       ),
@@ -476,7 +487,7 @@ class _HomePageState extends State<HomePage> {
   Widget _menuCard({
     required String title,
     required String subtitle,
-    required String icon,
+    required String iconPath,
     required Gradient gradient,
     required VoidCallback onTap,
   }) {
@@ -498,17 +509,32 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Row(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 40)),
+            Image.asset(
+              iconPath,
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+
             const SizedBox(width: 16),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(subtitle,
-                      style: const TextStyle(color: Colors.black54)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Colors.black54
+                    )
+                  ),
                 ],
               ),
             ),

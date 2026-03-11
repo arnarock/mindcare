@@ -37,7 +37,6 @@ class AppLayout extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
           /// LOGO
           InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -57,7 +56,7 @@ class AppLayout extends StatelessWidget {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: isHome ? Colors.grey : Colors.teal,
+                color: Colors.teal,
               ),
             ),
           ),
@@ -93,7 +92,10 @@ class AppLayout extends StatelessWidget {
                   child: const CircleAvatar(
                     radius: 18,
                     backgroundColor: Colors.teal,
-                    child: Icon(Icons.person, color: Colors.white),
+                    child: Icon(
+                      Icons.person, 
+                      color: Colors.white
+                    ),
                   ),
                 ),
 
