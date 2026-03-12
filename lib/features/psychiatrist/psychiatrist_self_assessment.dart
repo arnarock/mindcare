@@ -6,8 +6,13 @@ import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _res
 
 class PsychiatristSelfAssessmentPage extends StatefulWidget {
   final bool isViewOnly;
+  final String? userId;
 
-  const PsychiatristSelfAssessmentPage({super.key, this.isViewOnly = false});
+  const PsychiatristSelfAssessmentPage({
+    super.key,
+    this.isViewOnly = false,
+    this.userId,
+  });
 
   @override
   State<PsychiatristSelfAssessmentPage> createState() => _PsychiatristSelfAssessmentPageState();
@@ -124,10 +129,13 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
     return questions.sublist(start, end);
   }
 
+  late final String uid;
+
   @override
   void initState() {
     super.initState();
     answers = List.filled(questions.length, 0);
+    uid = widget.userId ?? FirebaseAuth.instance.currentUser!.uid;
 
     if (widget.isViewOnly) {
       loadLatestAssessment();
@@ -206,13 +214,10 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
   }
 
   Future<void> loadLatestAssessment() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
     final doc = await FirebaseFirestore.instance
-        .collection('self_assessment_results')
-        .doc(user.uid)
-        .get();
+      .collection('self_assessment_results')
+      .doc(uid)
+      .get();
 
     if (!doc.exists) return;
 
@@ -425,7 +430,10 @@ class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessm
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+                  builder: (_) => PsychiatristSelfAssessmentResultPage(
+                    userId: uid,
+                    isAdminView: widget.userId != null,
+                  ),
                 ),
               );
             } else {

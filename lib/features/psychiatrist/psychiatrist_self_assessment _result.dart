@@ -6,7 +6,14 @@ import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
 
 class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
-  const PsychiatristSelfAssessmentResultPage({super.key});
+  final String? userId;
+  final bool isAdminView;
+
+  const PsychiatristSelfAssessmentResultPage({
+    super.key,
+    this.userId,
+    this.isAdminView = false,
+  });
 
   String _getResultThai(String result) {
     switch (result) {
@@ -42,12 +49,13 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final uid = isAdminView ? userId : currentUser?.uid;
 
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('self_assessment_results')
-          .doc(user?.uid)
+          .doc(uid)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,10 +105,11 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
                 const Spacer(),
 
-                _retakeAssessmentButton(context),
+                if (!isAdminView) ...[
+                  _retakeAssessmentButton(context),
+                  const SizedBox(height: 12),
+                ],
 
-                const SizedBox(height: 12),
-                
                 _historyAssessmentButton(context),
               ],
             ),
@@ -183,25 +192,26 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PsychiatristChatPage(),
+          if (!isAdminView)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PsychiatristChatPage(),
+                  ),
+                );
+              },
+              child: const Text(
+                "พูดคุยกับจิตแพทย์",
+                style: TextStyle(
+                  color: Colors.white
                 ),
-              );
-            },
-            child: const Text(
-              "พูดคุยกับจิตแพทย์",
-              style: TextStyle(
-                color: Colors.white
               ),
             ),
-          ),
         ],
       ),
     );
@@ -311,6 +321,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
             MaterialPageRoute(
               builder: (_) => PsychiatristSelfAssessmentPage(
                 isViewOnly: true,
+                userId: userId,
               ),
             ),
           );

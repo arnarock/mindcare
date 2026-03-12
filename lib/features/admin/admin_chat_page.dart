@@ -72,7 +72,10 @@ class _AdminChatPageState extends State<AdminChatPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const PsychiatristSelfAssessmentResultPage(),
+          builder: (_) => PsychiatristSelfAssessmentResultPage(
+            userId: widget.chatId,
+            isAdminView: true,
+          ),
         ),
       );
     } else {
