@@ -13,7 +13,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   Future<void> refreshUser() async {
     await FirebaseAuth.instance.currentUser?.reload();
     setState(() {});
@@ -70,9 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-
                 const SizedBox(height: 10),
-
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,

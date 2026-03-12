@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:mindcare/features/home/home.dart';
 import 'package:mindcare/features/auth/login_screen.dart';
+import 'package:mindcare/features/home/home.dart';
+import 'package:mindcare/features/admin/admin_home_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -23,7 +25,31 @@ class AuthGate extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return const HomePage();
+        final uid = snapshot.data!.uid;
+
+        return FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get(),
+          builder: (context, roleSnapshot) {
+            if (roleSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            final data = roleSnapshot.data?.data() as Map<String, dynamic>?;
+
+            final role = data?['role'] ?? 'user';
+
+            if (role == "admin") {
+              return const AdminHomePage();
+            }
+
+            return const HomePage();
+          },
+        );
       },
     );
   }

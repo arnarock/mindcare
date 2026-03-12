@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:mindcare/core/services/mood_notification_helper.dart';
 import 'package:mindcare/features/home/home.dart';
 import 'package:mindcare/features/profile/profile_screen.dart';
-import 'package:mindcare/core/services/mood_notification_helper.dart';
+import 'package:mindcare/features/admin/admin_home_page.dart';
 
 class AppLayout extends StatelessWidget {
   final Widget child;
@@ -40,17 +42,38 @@ class AppLayout extends StatelessWidget {
           /// LOGO
           InkWell(
             borderRadius: BorderRadius.circular(8),
-            onTap: isHome
-                ? null
-                : () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const HomePage(),
-                      ),
-                      (route) => false,
-                    );
-                  },
+            onTap: () async {
+              final uid = FirebaseAuth.instance.currentUser?.uid;
+
+              if (uid == null) return;
+
+              final doc = await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(uid)
+                  .get();
+
+              final role = doc.data()?['role'] ?? 'user';
+
+              if (!context.mounted) return;
+
+              if (role == "admin") {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminHomePage(),
+                  ),
+                  (route) => false,
+                );
+              } else {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HomePage(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
             child: Image.asset(
               'assets/images/logo/logo_with_name.png',
               width: 35,

@@ -82,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'lastName': lastNameController.text.trim(),
         'phone': phoneController.text.replaceAll('-', ''),
         'email': emailController.text.trim(),
+        'role': "user",
         'createdAt': Timestamp.now(),
       });
 

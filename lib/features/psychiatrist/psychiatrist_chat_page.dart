@@ -23,7 +23,9 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
       appBar: AppBar(
         title: const Text(
           'Psychiatrist Chat',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -43,6 +45,8 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('chats')
+                  .doc(user!.uid)
+                  .collection('messages')
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -88,7 +92,7 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: "Type Here...",
+                      hintText: "Type message here...",
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
@@ -102,7 +106,10 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
                 CircleAvatar(
                   backgroundColor: Colors.teal,
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
+                    icon: const Icon(
+                      Icons.send, 
+                      color: Colors.white
+                    ),
                     onPressed: _sendMessage,
                   ),
                 ),
@@ -146,10 +153,20 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    await FirebaseFirestore.instance.collection('chats').add({
+    final chatRef =
+      FirebaseFirestore.instance.collection('chats').doc(user!.uid);
+
+    await chatRef.collection('messages').add({
       'senderId': user!.uid,
       'message': _messageController.text.trim(),
       'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    await chatRef.update({
+      'userId': user!.uid,
+      'lastMessage': _messageController.text.trim(),
+      'lastTimestamp': FieldValue.serverTimestamp(),
+      'unreadForAdmin': true,
     });
 
     _messageController.clear();
@@ -167,16 +184,20 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
-            bottomLeft:
-                isMe ? const Radius.circular(16) : const Radius.circular(0),
-            bottomRight:
-                isMe ? const Radius.circular(0) : const Radius.circular(16),
+            bottomLeft: isMe 
+              ? const Radius.circular(16) 
+              : const Radius.circular(0),
+            bottomRight: isMe 
+              ? const Radius.circular(0) 
+              : const Radius.circular(16),
           ),
         ),
         child: Text(
           message,
           style: TextStyle(
-            color: isMe ? Colors.white : Colors.black87,
+            color: isMe 
+              ? Colors.white 
+              : Colors.black87,
           ),
         ),
       ),
