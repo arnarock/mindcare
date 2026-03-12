@@ -376,7 +376,12 @@ class _SetTimeSheetState extends State<SetTimeSheet> {
               onPressed: () {
                 Navigator.pop(context, selectedMinutes);
               },
-              child: const Text("START"),
+              child: const Text(
+                "START",
+                style: TextStyle(
+                  color: Colors.white
+                ),
+              ),
             ),
           ),
 

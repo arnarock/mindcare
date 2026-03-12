@@ -39,8 +39,8 @@ dependencies:
   cloud_firestore: ^6.1.2
   intl: ^0.19.0
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -48,6 +48,24 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  adaptive_icon_background: '#ffffff'
+  image_path: assets/images/logo/logo.png
+
+flutter_native_splash:
+  android: true
+  ios: true
+  color: "#ffffff"
+  image: assets/images/logo/logo_with_name_padding.png
+  android_gravity: center
+  ios_content_mode: center
+  fullscreen: false
+  android_12:
+    image: assets/images/logo/logo_with_name_padding.png
+    icon_background_color: "#ffffff"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,6 +93,9 @@ flutter:
     - assets/images/home/mood_tracking_icon.png
     - assets/images/home/meditation_icon.png
     - assets/images/home/psychiatrist_icon.png
+    - assets/images/logo/logo.png
+    - assets/images/logo/logo_with_name.png
+    - assets/images/logo/logo_with_name_padding.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

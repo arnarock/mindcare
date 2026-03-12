@@ -90,8 +90,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              "สมัครสมาชิกสำเร็จ 🎉 กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"),
-          backgroundColor: Colors.green,
+            "สมัครสมาชิกสำเร็จ 🎉 กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"),
+            backgroundColor: Colors.green,
         ),
       );
 
@@ -137,15 +137,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const Icon(Icons.favorite,
-                        size: 80, color: Colors.green),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "WellCare",
-                      style: TextStyle(
-                          fontSize: 28, fontWeight: FontWeight.bold),
+                    Image.asset(
+                      'assets/images/logo/logo_with_name.png',
+                      width: 100,
+                      height: 100,
                     ),
-                    const SizedBox(height: 30),
+
+                    const SizedBox(height: 45),
 
                     /// First Name
                     TextFormField(
@@ -162,6 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 12),
 
                     /// Last Name
@@ -179,6 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 12),
 
                     /// Phone
@@ -193,17 +193,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (value == null || value.trim().isEmpty) {
                           return "กรุณากรอกเบอร์โทร";
                         }
-
                         final digits = value.replaceAll('-', '');
-
                         if (digits.length != 10) {
                           return "เบอร์โทรต้องมี 10 หลัก";
                         }
-
                         return null;
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 12),
 
                     /// Email
@@ -275,23 +273,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 24),
 
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed:
-                            (!isFormFilled || isLoading) ? null : register,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        onPressed: (!isFormFilled || isLoading) 
+                          ? null 
+                          : register,
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return const Color.fromARGB(255, 233, 233, 233); // ปุ่มยังใช้ไม่ได้
+                            }
+                            return Colors.teal; // ปุ่มพร้อมกด
+                          }),
+                          foregroundColor: MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Colors.black26; // สีตัวอักษรตอนปุ่มเทา
+                            }
+                            return Colors.white; // สีตัวอักษรตอนปุ่มเขียว
+                          }),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                         child: const Text(
                           "สมัครสมาชิก",
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

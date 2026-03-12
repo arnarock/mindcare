@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'register_screen.dart';
+
+import 'package:mindcare/features/auth/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,8 +20,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   bool get isFormFilled =>
-      emailController.text.trim().isNotEmpty &&
-      passwordController.text.isNotEmpty;
+    emailController.text.trim().isNotEmpty &&
+    passwordController.text.isNotEmpty;
 
   /// 🔐 LOGIN
   Future<void> login() async {
@@ -120,17 +121,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
                       content:
-                          Text("ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลแล้ว 📩"),
-                      backgroundColor: Colors.green,
+                        Text("ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลแล้ว 📩"),
+                        backgroundColor: Colors.green,
                     ),
                   );
                 } on FirebaseAuthException catch (e) {
                   if (!dialogContext.mounted) return;
 
                   String message =
-                      e.code == 'user-not-found'
-                          ? "ไม่พบบัญชีผู้ใช้นี้"
-                          : "เกิดข้อผิดพลาด";
+                    e.code == 'user-not-found'
+                      ? "ไม่พบบัญชีผู้ใช้นี้"
+                      : "เกิดข้อผิดพลาด";
 
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     SnackBar(
@@ -167,16 +168,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const Icon(Icons.favorite,
-                        size: 80, color: Colors.green),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "MindCare+",
-                      style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold),
+                    const SizedBox(height: 115),
+
+                    Image.asset(
+                      'assets/images/logo/logo_with_name.png',
+                      width: 175,
+                      height: 175,
+                      fit: BoxFit.contain,
                     ),
-                    const SizedBox(height: 40),
+
+                    const SizedBox(height: 115),
 
                     /// EMAIL
                     TextFormField(
@@ -202,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 16),
 
                     /// PASSWORD
@@ -239,8 +241,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextButton(
                         onPressed:
                             resetPasswordDialog,
-                        child:
-                            const Text("ลืมรหัสผ่าน?"),
+                        child: const Text(
+                          "ลืมรหัสผ่าน?",
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ),
 
@@ -250,26 +256,34 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed:
-                            (!isFormFilled ||
-                                    isLoading)
-                                ? null
-                                : login,
-                        style:
-                            ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.green,
-                          shape:
-                              RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                                    12),
+                        onPressed: (!isFormFilled || isLoading)
+                          ? null
+                          : login,
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return const Color.fromARGB(255, 233, 233, 233); // ปุ่มยังใช้ไม่ได้
+                            }
+                            return Colors.teal; // ปุ่มพร้อมกด
+                          }),
+                          foregroundColor: MaterialStateProperty.resolveWith((states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Colors.black26; // สีตัวอักษรตอนปุ่มเทา
+                            }
+                            return Colors.white; // สีตัวอักษรตอนปุ่มเขียว
+                          }),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                         child: const Text(
                           "เข้าสู่ระบบ",
-                          style:
-                              TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -287,7 +301,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                          "สมัครสมาชิก"),
+                        "สมัครสมาชิก",
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -300,8 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
               color:
                   Colors.black.withValues(alpha: 0.4),
               child: const Center(
-                child:
-                    CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   color: Colors.green,
                 ),
               ),

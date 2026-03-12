@@ -51,26 +51,23 @@ class AppLayout extends StatelessWidget {
                       (route) => false,
                     );
                   },
-            child: Text(
-              'MindCare+',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
-              ),
+            child: Image.asset(
+              'assets/images/logo/logo_with_name.png',
+              width: 35,
+              height: 35,
+              fit: BoxFit.contain,
             ),
           ),
 
           Row(
             children: [
-
               /// NOTIFICATION
               IconButton(
                 icon: const Icon(Icons.notifications_none_rounded),
                 onPressed: () async {
                   try {
                     await MoodNotificationHelper
-                        .sendTodayMoodNotification();
+                      .sendTodayMoodNotification();
                   } catch (e) {
                     debugPrint("Notification error: $e");
                   }
