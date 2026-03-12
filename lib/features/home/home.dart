@@ -36,6 +36,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _moodMessage(double avg) {
+    if (avg == 0) {
+      return "No mood recorded yet 🌱";
+    }
     if (avg >= 4) {
       return "You're shining this month ✨";
     }
@@ -383,11 +386,16 @@ class _HomePageState extends State<HomePage> {
 
         double avg = snapshot.data!;
 
-        String mood = MoodNotificationHelper.scoreToMood(avg);
+        String mood;
+        String image;
 
-        String image =
-            MoodImages.map[mood] ??
-            "assets/images/moods/mood_calm.png";
+        if (avg == 0) {
+          mood = "None";
+          image = MoodImages.map["None"]!;
+        } else {
+          mood = MoodNotificationHelper.scoreToMood(avg);
+          image = MoodImages.map[mood]!;
+        }
 
         const months = [
           '',
@@ -414,7 +422,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Mood Summary • $month",
+                "Mood on $month",
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),

@@ -90,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "สมัครสมาชิกสำเร็จ 🎉 กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"),
+            "Registration successful 🎉 Please check your email to verify your account"),
             backgroundColor: Colors.green,
         ),
       );
@@ -100,13 +100,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       String message;
 
       if (e.code == 'email-already-in-use') {
-        message = "อีเมลนี้ถูกใช้แล้ว";
+        message = "Email is already in use";
       } else if (e.code == 'weak-password') {
-        message = "รหัสผ่านต้องมีอย่างน้อย 6 ตัว";
+        message = "Password must be at least 6 characters";
       } else if (e.code == 'invalid-email') {
-        message = "รูปแบบอีเมลไม่ถูกต้อง";
+        message = "Invalid email format";
       } else {
-        message = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+        message = "An error occurred. Please try again.";
       }
 
       if (!mounted) return;
@@ -148,13 +148,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     /// First Name
                     TextFormField(
                       controller: firstNameController,
-                      decoration: _inputDecoration("ชื่อ"),
+                      decoration: _inputDecoration("First Name"),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp(r'\s')),
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "กรุณากรอกชื่อ";
+                          return "Please enter your first name";
                         }
                         return null;
                       },
@@ -166,13 +166,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     /// Last Name
                     TextFormField(
                       controller: lastNameController,
-                      decoration: _inputDecoration("นามสกุล"),
+                      decoration: _inputDecoration("Last Name"),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp(r'\s')),
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "กรุณากรอกนามสกุล";
+                          return "Please enter your last name";
                         }
                         return null;
                       },
@@ -185,17 +185,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: _inputDecoration("เบอร์โทร"),
+                      decoration: _inputDecoration("Phone Number"),
                       inputFormatters: [
                         PhoneNumberFormatter(),
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "กรุณากรอกเบอร์โทร";
+                          return "Please enter your phone number";
                         }
                         final digits = value.replaceAll('-', '');
                         if (digits.length != 10) {
-                          return "เบอร์โทรต้องมี 10 หลัก";
+                          return "Phone number must have 10 digits";
                         }
                         return null;
                       },
@@ -208,10 +208,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: _inputDecoration("อีเมล"),
+                      decoration: _inputDecoration("Email"),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "กรุณากรอกอีเมล";
+                          return "Please enter your email";
                         }
 
                         final email = value.trim();
@@ -219,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
                         if (!emailRegex.hasMatch(email)) {
-                          return "รูปแบบอีเมลไม่ถูกต้อง";
+                          return "Invalid email format";
                         }
 
                         return null;
@@ -232,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: passwordController,
                       obscureText: obscurePassword,
-                      decoration: _inputDecoration("รหัสผ่าน").copyWith(
+                      decoration: _inputDecoration("Password").copyWith(
                         suffixIcon: IconButton(
                           icon: Icon(obscurePassword
                               ? Icons.visibility
@@ -246,10 +246,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "กรุณากรอกรหัสผ่าน";
+                          return "Please enter your password";
                         }
                         if (value.length < 6) {
-                          return "รหัสผ่านต้องมีอย่างน้อย 6 ตัว";
+                          return "Password must be at least 6 characters";
                         }
                         return null;
                       },
@@ -264,10 +264,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: _inputDecoration("ยืนยันรหัสผ่าน"),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "กรุณายืนยันรหัสผ่าน";
+                          return "Please confirm your password";
                         }
                         if (value != passwordController.text) {
-                          return "รหัสผ่านไม่ตรงกัน";
+                          return "Passwords do not match";
                         }
                         return null;
                       },
@@ -303,7 +303,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         child: const Text(
-                          "สมัครสมาชิก",
+                          "Register",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -318,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onPressed: () {
                         if (mounted) Navigator.pop(context);
                       },
-                      child: const Text("กลับไปยังหน้าเข้าสู่ระบบ"),
+                      child: const Text("Back to Login"),
                     ),
                   ],
                 ),
