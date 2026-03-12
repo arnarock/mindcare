@@ -125,16 +125,13 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                       const SizedBox(height: 16),
 
-                      entries.isEmpty
-                        ? const Icon(
-                            Icons.sentiment_neutral,
-                            size: 70,
-                            color: Colors.grey,
-                          )
-                        : Image.asset(
-                            MoodImages.map[avgMood] ?? "",
-                            height: 70,
-                          ),
+                      Image.asset(
+                        entries.isEmpty
+                          ? 'assets/images/moods/mood_none.png'
+                          : MoodImages.map[avgMood] ??
+                              'assets/images/moods/mood_none.png',
+                        height: 70,
+                      ),
 
                       const SizedBox(height: 8),
 
@@ -325,6 +322,8 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 12),
+
               Image.asset(
                 MoodImages.map[mood] ?? "",
                 height: 60,

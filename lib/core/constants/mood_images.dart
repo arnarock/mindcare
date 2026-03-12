@@ -1,5 +1,6 @@
 class MoodImages {
   static const Map<String, String> map = {
+    "None": "assets/images/moods/mood_none.png",
     "Ecstatic": "assets/images/moods/mood_ecstatic.png",
     "Excited": "assets/images/moods/mood_excited.png",
     "Happy": "assets/images/moods/mood_happy.png",

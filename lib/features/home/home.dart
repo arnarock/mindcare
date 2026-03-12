@@ -410,6 +410,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
@@ -419,26 +420,25 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 6),
 
               Image.asset(
                 image,
-                height: 36,
+                height: 32,
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
 
               Text(
                 _moodMessage(avg),
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   color: Colors.black45,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-
             ],
           ),
         );
@@ -472,13 +472,21 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 10),
 
           Text(
-            "🙂🙂🙂 → 3d", 
-            style: TextStyle(fontSize: 18)
+            "Your calm habit is growing", 
+            style: TextStyle(
+              color: Colors.black45,
+              fontSize: 13
+            )
           ),
 
           SizedBox(height: 6),
           
-          Text("Great job!"),
+          Text(
+            "Great job!",
+            style: TextStyle(
+              fontSize: 14
+            )
+          ),
         ],
       ),
     );

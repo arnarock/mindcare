@@ -8,17 +8,6 @@ import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart
 class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
   const PsychiatristSelfAssessmentResultPage({super.key});
 
-  String _getEmoji(String result) {
-    switch (result) {
-      case "Good":
-        return "😊";
-      case "Fair":
-        return "🙂";
-      default:
-        return "😟";
-    }
-  }
-
   String _getResultThai(String result) {
     switch (result) {
       case "Good":
@@ -33,20 +22,20 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
   String _getDescription(String result) {
     switch (result) {
       case "Good":
-        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับดี\n"
-            "สามารถรับมือกับปัญหาในชีวิตประจำวันได้อย่างเหมาะสม\n"
-            "ควรรักษาพฤติกรรมด้านบวกและดูแลสุขภาพจิตอย่างสม่ำเสมอ\n"
+        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับดี"
+            "สามารถรับมือกับปัญหาในชีวิตประจำวันได้อย่างเหมาะสม"
+            "ควรรักษาพฤติกรรมด้านบวกและดูแลสุขภาพจิตอย่างสม่ำเสมอ"
             "การพักผ่อนและทำกิจกรรมที่ชอบจะช่วยเสริมสุขภาวะทางใจให้ดียิ่งขึ้น";
       case "Fair":
-        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับปานกลาง\n"
-            "อาจมีความเครียดหรือความกังวลในบางช่วงเวลา\n"
-            "ควรดูแลตนเองด้วยการพักผ่อนให้เพียงพอและผ่อนคลายความเครียด\n"
+        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับปานกลาง"
+            "อาจมีความเครียดหรือความกังวลในบางช่วงเวลา"
+            "ควรดูแลตนเองด้วยการพักผ่อนให้เพียงพอและผ่อนคลายความเครียด"
             "หากรู้สึกไม่สบายใจต่อเนื่องควรปรึกษาผู้เชี่ยวชาญ";
       default:
-        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับต่ำกว่าคนทั่วไป\n"
-            "อาจกำลังเผชิญกับความเครียดหรือความทุกข์ใจในชีวิตประจำวัน\n"
-            "ควรได้รับการดูแลด้านจิตใจอย่างเหมาะสม\n"
-            "การพูดคุยกับผู้เชี่ยวชาญหรือคนที่ไว้ใจได้จะช่วยให้รู้สึกดีขึ้น\n"
+        return "จากผลการประเมินพบว่าท่านมีสุขภาพจิตอยู่ในระดับต่ำกว่าคนทั่วไป"
+            "อาจกำลังเผชิญกับความเครียดหรือความทุกข์ใจในชีวิตประจำวัน"
+            "ควรได้รับการดูแลด้านจิตใจอย่างเหมาะสม"
+            "การพูดคุยกับผู้เชี่ยวชาญหรือคนที่ไว้ใจได้จะช่วยให้รู้สึกดีขึ้น"
             "ท่านไม่จำเป็นต้องเผชิญปัญหาเพียงลำพัง";
     }
   }
@@ -102,7 +91,9 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                _criteriaSection(),
+                // _criteriaSection(),
+
+                _creditSection(),
 
                 const Spacer(),
 
@@ -120,23 +111,43 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
   }
 
   Widget _resultHeader(int score, String result) {
+    String imagePath;
+
+    switch (result) {
+      case "Good":
+        imagePath = 'assets/images/moods/mood_happy.png';
+        break;
+      case "Fair":
+        imagePath = 'assets/images/moods/mood_calm.png';
+        break;
+      default:
+        imagePath = 'assets/images/moods/mood_tired.png';
+    }
+
     return Column(
       children: [
-        Text(_getEmoji(result), style: const TextStyle(fontSize: 80)),
+        Image.asset(
+          imagePath,
+          height: 100,
+        ),
+
         const SizedBox(height: 8),
+
         Text(
           "คะแนนรวม $score / 220 คะแนน",
           style: const TextStyle(
-            fontSize: 20, 
+            fontSize: 16, 
             fontWeight: FontWeight.w700
           ),
         ),
+
         const SizedBox(height: 4),
+
         Text(
           _getResultThai(result),
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 18, 
+            fontSize: 14, 
             fontWeight: FontWeight.w700
           ),
         ),
@@ -165,11 +176,13 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
             _getDescription(result),
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 15, 
+              fontSize: 14, 
               fontWeight: FontWeight.w500
             ),
           ),
+
           const SizedBox(height: 12),
+
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.teal
@@ -194,33 +207,57 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
-  Widget _criteriaSection() {
-    return const Column(
-      children: [
-        Text("เกณฑ์ปกติที่กำหนด", 
-        style: TextStyle(
-          color: Colors.grey,
-          fontWeight: FontWeight.bold
-        )),
-        SizedBox(height: 5),
-        Text(
-          "คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)",
-          style: TextStyle(
-            color: Colors.grey,
-          )
-        ),
-        Text("คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)",
-          style: TextStyle(
-            color: Colors.grey,
-          )
-        ),
-        Text(
-          "คะแนนมากกว่า 178 มีสุขภาพจิตดีกว่าคนทั่วไป (Good)",
-          style: TextStyle(
-            color: Colors.grey,
-          )
-        ),
-      ],
+  // Widget _criteriaSection() {
+  //   return const Column(
+  //     children: [
+  //       Text("เกณฑ์ปกติที่กำหนด", 
+  //       style: TextStyle(
+  //         color: Colors.grey,
+  //         fontSize: 12,
+  //         fontWeight: FontWeight.bold
+  //       )),
+
+  //       SizedBox(height: 5),
+
+  //       Text(
+  //         "คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)",
+  //         style: TextStyle(
+  //           color: Colors.grey,
+  //           fontSize: 12,
+  //         )
+  //       ),
+
+  //       Text(
+  //         "คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)",
+  //         style: TextStyle(
+  //           color: Colors.grey,
+  //           fontSize: 12,
+  //         )
+  //       ),
+
+  //       Text(
+  //         "คะแนนมากกว่า 178 มีสุขภาพจิตดีกว่าคนทั่วไป (Good)",
+  //         style: TextStyle(
+  //           color: Colors.grey,
+  //           fontSize: 12,
+  //         )
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _creditSection() {
+    return Text(
+      "แบบทดสอบนี้อ้างอิงจาก"
+      "แบบทดสอบดัชนีชี้วัดสุขภาพจิตคนไทยฉบับสมบูรณ์ 55 ข้อ ปีพ.ศ.2550"
+      "\n[Thai Mental Health Indicator Version 2077 = TMHI-55]"
+      "\nกรมสุขภาพจิต กระทรวงสาธารณสุข",
+      style: TextStyle(
+        color: Colors.grey,
+        fontSize: 13,
+        fontWeight: FontWeight.w600
+      ),
+      textAlign: TextAlign.center,
     );
   }
 

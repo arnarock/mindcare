@@ -265,6 +265,9 @@ class _MeditationPageState extends State<MeditationPage>
                   onPressed: toggleTimer,
                   child: Text(
                     isRunning ? "PAUSE" : "START",
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
                   ),
                 ),
 

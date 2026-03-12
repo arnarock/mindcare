@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'notification_service.dart';
 
 class MoodNotificationHelper {
-
   static final Random _random = Random();
 
   static String scoreToMood(double avg) {
@@ -20,7 +19,6 @@ class MoodNotificationHelper {
   }
 
   static String moodToMessage(String mood) {
-
     final Map<String, List<String>> messages = {
 
       "Ecstatic": [
@@ -106,7 +104,6 @@ class MoodNotificationHelper {
   }
 
   static Future<void> sendTodayMoodNotification() async {
-
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
