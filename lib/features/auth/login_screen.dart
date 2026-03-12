@@ -41,16 +41,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       switch (e.code) {
         case 'invalid-credential':
-          message = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          message = "Invalid email or password";
           break;
         case 'invalid-email':
-          message = "รูปแบบอีเมลไม่ถูกต้อง";
+          message = "Invalid email format";
           break;
         case 'too-many-requests':
-          message = "พยายามหลายครั้งเกินไป กรุณาลองใหม่ภายหลัง";
+          message = "Too many failed attempts. Please try again later.";
           break;
         default:
-          message = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+          message = "An error occurred. Please try again.";
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -75,19 +75,19 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text("รีเซ็ตรหัสผ่าน"),
+          title: const Text("Reset Password"),
           content: TextField(
             controller: resetController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
-              labelText: "กรอกอีเมล",
+              labelText: "Enter Email",
               border: OutlineInputBorder(),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text("ยกเลิก"),
+              child: const Text("Cancel"),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text("รูปแบบอีเมลไม่ถูกต้อง"),
+                      content: Text("Invalid email format"),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
                       content:
-                        Text("ส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลแล้ว 📩"),
+                        Text("Password reset link sent to your email 📩"),
                         backgroundColor: Colors.green,
                     ),
                   );
@@ -130,8 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   String message =
                     e.code == 'user-not-found'
-                      ? "ไม่พบบัญชีผู้ใช้นี้"
-                      : "เกิดข้อผิดพลาด";
+                      ? "User not found"
+                      : "An error occurred";
 
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     SnackBar(
@@ -184,11 +184,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: emailController,
                       keyboardType:
                           TextInputType.emailAddress,
-                      decoration: _inputDecoration("อีเมล"),
+                      decoration: _inputDecoration("Email"),
                       validator: (value) {
                         if (value == null ||
                             value.trim().isEmpty) {
-                          return "กรุณากรอกอีเมล";
+                          return "Please enter your email";
                         }
 
                         final email = value.trim();
@@ -196,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
                         if (!emailRegex.hasMatch(email)) {
-                          return "รูปแบบอีเมลไม่ถูกต้อง";
+                          return "Invalid email format";
                         }
 
                         return null;
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: passwordController,
                       obscureText: obscurePassword,
                       decoration:
-                          _inputDecoration("รหัสผ่าน")
+                          _inputDecoration("Password")
                               .copyWith(
                         suffixIcon: IconButton(
                           icon: Icon(obscurePassword
@@ -228,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty) {
-                          return "กรุณากรอกรหัสผ่าน";
+                          return "Please enter your password";
                         }
                         return null;
                       },
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed:
                             resetPasswordDialog,
                         child: const Text(
-                          "ลืมรหัสผ่าน?",
+                          "Forgot Password?",
                           style: TextStyle(
                             fontSize: 14,
                           ),
@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         child: const Text(
-                          "เข้าสู่ระบบ",
+                          "Login",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -301,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        "สมัครสมาชิก",
+                        "Sign Up",
                         style: TextStyle(
                           fontSize: 14,
                         ),
