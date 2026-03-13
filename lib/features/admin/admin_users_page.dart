@@ -25,13 +25,6 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         .update({"role": "user"});
   }
 
-  Future<void> banUser(String uid) async {
-    await FirebaseFirestore.instance
-      .collection('users')
-      .doc(uid)
-      .update({"status": "banned"});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,36 +67,25 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(
-                      child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 final users = snapshot.data!.docs.where((doc) {
                   final data =
-                      doc.data() as Map<String, dynamic>;
+                    doc.data() as Map<String, dynamic>;
 
                   final name = "${data['firstName'] ?? ''} ${data['lastName'] ?? '-'}";
-
                   final email = (data['email'] ?? "-");
 
-                  return name.contains(searchText) ||
-                      email.contains(searchText);
+                  return name.contains(searchText) || email.contains(searchText);
                 }).toList();
 
-                return ListView.separated(
-                  padding: const EdgeInsets.all(12),
-
+                return ListView.builder(
+                  padding: const EdgeInsets.all(6),
                   itemCount: users.length,
-
-                  separatorBuilder: (_, __) =>
-                    const SizedBox(height: 8),
-
                   itemBuilder: (context, index) {
-
                     final data = users[index].data() as Map<String, dynamic>;
-
                     final uid = users[index].id;
-
                     return Card(
                       elevation: 2,
                       child: ListTile(
@@ -136,10 +118,6 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                             if (value == "removeAdmin") {
                               removeAdmin(uid);
                             }
-
-                            if (value == "ban") {
-                              banUser(uid);
-                            }
                           },
 
                           itemBuilder: (context) => const [
@@ -151,11 +129,6 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                             PopupMenuItem(
                               value: "removeAdmin",
                               child: Text("Remove Admin"),
-                            ),
-
-                            PopupMenuItem(
-                              value: "ban",
-                              child: Text("Ban User"),
                             ),
                           ],
                         ),
