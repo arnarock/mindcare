@@ -94,20 +94,21 @@ class _HomePageState extends State<HomePage> {
           .doc(user.uid)
           .snapshots(),
       builder: (context, snapshot) {
-        final data = snapshot.data!.data() as Map<String, dynamic>;
-        final firstName = data['firstName'] ?? '';
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
 
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Scaffold(
-            body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
-          );
-        }
+      if (!snapshot.hasData || !snapshot.data!.exists) {
+        return const Scaffold(
+          body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
+        );
+      }
+
+      final data = snapshot.data!.data() as Map<String, dynamic>;
+      final firstName = data['firstName'] ?? '';
 
         return AppLayout(
           isHome: true,
