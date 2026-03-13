@@ -22,31 +22,32 @@ class _AdminChatPageState extends State<AdminChatPage> {
     super.initState();
 
     FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chatId)
-        .update({
-      'unreadForAdmin': false,
-    });
+      .collection('chats')
+      .doc(widget.chatId)
+      .set({
+        'unreadForAdmin': false,
+      }, SetOptions(merge: true));
   }
 
   void sendMessage() async {
     if (controller.text.trim().isEmpty) return;
 
-    final chatRef =
-      FirebaseFirestore.instance.collection('chats').doc(widget.chatId);
+    final message = controller.text.trim();
 
-    // add message
+    final chatRef =
+        FirebaseFirestore.instance.collection('chats').doc(widget.chatId);
+
     await chatRef.collection('messages').add({
       'senderId': admin!.uid,
-      'message': controller.text.trim(),
+      'message': message,
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // update last message
-    await chatRef.update({
-      'lastMessage': controller.text.trim(),
+    await chatRef.set({
+      'lastMessage': message,
       'lastTimestamp': FieldValue.serverTimestamp(),
-    });
+      'unreadForAdmin': false, // admin อ่านแล้ว
+    }, SetOptions(merge: true));
 
     controller.clear();
   }
@@ -142,8 +143,6 @@ class _AdminChatPageState extends State<AdminChatPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
-                _markAsRead();
 
                 final messages = snapshot.data!.docs;
 

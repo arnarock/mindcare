@@ -153,21 +153,25 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
-    final chatRef =
-      FirebaseFirestore.instance.collection('chats').doc(user!.uid);
+    final message = _messageController.text.trim();
 
+    final chatRef =
+        FirebaseFirestore.instance.collection('chats').doc(user!.uid);
+
+    // add message
     await chatRef.collection('messages').add({
       'senderId': user!.uid,
-      'message': _messageController.text.trim(),
+      'message': message,
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    await chatRef.update({
+    // update chat info
+    await chatRef.set({
       'userId': user!.uid,
-      'lastMessage': _messageController.text.trim(),
+      'lastMessage': message,
       'lastTimestamp': FieldValue.serverTimestamp(),
       'unreadForAdmin': true,
-    });
+    }, SetOptions(merge: true));
 
     _messageController.clear();
   }
