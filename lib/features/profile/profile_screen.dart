@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     onPressed: refreshUser,
                     child: const Text(
-                      "รีเฟรชสถานะ",
+                      "Refresh Status",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
