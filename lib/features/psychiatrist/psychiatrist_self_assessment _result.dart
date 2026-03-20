@@ -14,8 +14,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
 
+/// Page that displays the result of the mental health self-assessment
+/// - Can be viewed by user or admin
+/// - Shows score, result level, explanation, and actions
 class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
+
+  /// User ID (used when admin views another user's result)
   final String? userId;
+
+  /// Indicates admin view mode (read-only for another user)
   final bool isAdminView;
 
   const PsychiatristSelfAssessmentResultPage({
@@ -24,6 +31,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     this.isAdminView = false,
   });
 
+  /// Convert result level to Thai description text
   String _getResultThai(String result) {
     switch (result) {
       case "Good":
@@ -35,6 +43,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     }
   }
 
+  /// Detailed explanation text based on result level
   String _getDescription(String result) {
     switch (result) {
       case "Good":
@@ -58,27 +67,38 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Current logged-in user
     final currentUser = FirebaseAuth.instance.currentUser;
+
+    /// Determine which UID to use
+    /// - Admin view → use provided userId
+    /// - Normal view → use current user's UID
     final uid = isAdminView ? userId : currentUser?.uid;
 
+    /// Listen to assessment result document in Firestore
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('self_assessment_results')
           .doc(uid)
           .snapshots(),
       builder: (context, snapshot) {
+
+        /// Show loading while fetching data
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator()
           );
         }
 
+        /// If no data found → show error message
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Center(
             child: Text("ไม่พบข้อมูลผู้ใช้")
           );
         }
 
+        /// Extract score and result from Firestore
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final score = data["score"];
         final result = data["result"];
@@ -100,25 +120,30 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
 
+                /// Top section showing image, score, and result level
                 _resultHeader(score, result),
 
                 const SizedBox(height: 20),
 
+                /// Card containing explanation and chat button
                 _resultCard(context, result),
 
                 const SizedBox(height: 20),
 
                 // _criteriaSection(),
 
+                /// Credit information for the assessment source
                 _creditSection(),
 
                 const Spacer(),
 
+                /// Retake button only for normal user view
                 if (!isAdminView) ...[
                   _retakeAssessmentButton(context),
                   const SizedBox(height: 12),
                 ],
 
+                /// View history button
                 _historyAssessmentButton(context),
               ],
             ),
@@ -128,6 +153,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
+  /// Header showing result image, score, and summary text
   Widget _resultHeader(int score, String result) {
     String imagePath;
 
@@ -173,6 +199,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
+  /// Main result card containing explanation text and optional chat button
   Widget _resultCard(BuildContext context, String result) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -201,6 +228,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
 
           const SizedBox(height: 12),
 
+          /// Chat button available only for normal users
           if (!isAdminView)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -226,45 +254,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
-  // Widget _criteriaSection() {
-  //   return const Column(
-  //     children: [
-  //       Text("เกณฑ์ปกติที่กำหนด", 
-  //       style: TextStyle(
-  //         color: Colors.grey,
-  //         fontSize: 12,
-  //         fontWeight: FontWeight.bold
-  //       )),
-
-  //       SizedBox(height: 5),
-
-  //       Text(
-  //         "คะแนน 0-157  มีสุขภาพจิตต่ำกว่าคนทั่วไป (Poor)",
-  //         style: TextStyle(
-  //           color: Colors.grey,
-  //           fontSize: 12,
-  //         )
-  //       ),
-
-  //       Text(
-  //         "คะแนน 158-178 มีสุขภาพจิตเท่ากับคนทั่วไป (Fair)",
-  //         style: TextStyle(
-  //           color: Colors.grey,
-  //           fontSize: 12,
-  //         )
-  //       ),
-
-  //       Text(
-  //         "คะแนนมากกว่า 178 มีสุขภาพจิตดีกว่าคนทั่วไป (Good)",
-  //         style: TextStyle(
-  //           color: Colors.grey,
-  //           fontSize: 12,
-  //         )
-  //       ),
-  //     ],
-  //   );
-  // }
-
+  /// Source/credit information of the assessment tool
   Widget _creditSection() {
     return Text(
       "แบบทดสอบนี้อ้างอิงจาก"
@@ -280,6 +270,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
+  /// Button to retake the assessment
   Widget _retakeAssessmentButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
@@ -313,6 +304,7 @@ class PsychiatristSelfAssessmentResultPage extends StatelessWidget {
     );
   }
 
+  /// Button to view assessment history
   Widget _historyAssessmentButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,

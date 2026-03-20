@@ -20,27 +20,66 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:mindcare/features/auth/register_screen.dart';
 
+/// Login screen that allows users to authenticate using
+/// email and password via Firebase Authentication.
+///
+/// Features:
+/// - Form validation for email and password
+/// - Password visibility toggle
+/// - Forgot password functionality
+/// - Loading overlay during authentication
+/// - Navigation to registration screen
+///
+/// Notes:
+/// - Displays error messages for authentication failures
+/// - Prevents submission when form is invalid
 class LoginScreen extends StatefulWidget {
+
+  /// Creates a [LoginScreen].
   const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+/// State class for [LoginScreen].
+///
+/// Manages form state, input controllers,
+/// authentication actions, and UI updates.
 class _LoginScreenState extends State<LoginScreen> {
+
+  /// Key used to validate the login form.
   final _formKey = GlobalKey<FormState>();
 
+  /// Controller for the email input field.
   final emailController = TextEditingController();
+
+  /// Controller for the password input field.
   final passwordController = TextEditingController();
 
+  /// Controls whether the password is obscured.
   bool obscurePassword = true;
+
+  /// Indicates whether a login operation is in progress.
   bool isLoading = false;
 
+  /// Returns true if both email and password fields are filled.
   bool get isFormFilled =>
     emailController.text.trim().isNotEmpty &&
     passwordController.text.isNotEmpty;
 
-  /// 🔐 LOGIN
+  /// Attempts to sign in the user using Firebase Authentication.
+  ///
+  /// Validates the form before submission.
+  /// Displays appropriate error messages for known failures.
+  ///
+  /// Async behavior:
+  /// - Performs network authentication
+  ///
+  /// Side effects:
+  /// - Shows loading indicator
+  /// - Displays SnackBar on error
+  /// - Navigates automatically upon successful login
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -84,7 +123,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// 🔁 RESET PASSWORD
+  /// Displays a dialog for password reset via email.
+  ///
+  /// Allows the user to enter their email address and
+  /// sends a password reset link using Firebase Authentication.
+  ///
+  /// Validates email format before submission.
+  ///
+  /// Side effects:
+  /// - Shows dialog UI
+  /// - Sends password reset email
+  /// - Displays success or error messages
   void resetPasswordDialog() {
     final resetController = TextEditingController();
 
@@ -166,6 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// Disposes controllers when the widget is removed
+  /// to prevent memory leaks.
   @override
   void dispose() {
     emailController.dispose();
@@ -175,18 +226,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Builds the login interface with form fields,
+    /// actions, and loading overlay.
     return Scaffold(
       body: Stack(
         children: [
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
+
+              /// Login form containing input fields and buttons.
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     const SizedBox(height: 115),
 
+                    /// App logo.
                     Image.asset(
                       'assets/images/logo/logo_with_name.png',
                       width: 175,
@@ -196,12 +253,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 115),
 
-                    /// EMAIL
+                    /// EMAIL INPUT FIELD
                     TextFormField(
                       controller: emailController,
                       keyboardType:
                           TextInputType.emailAddress,
                       decoration: _inputDecoration("Email"),
+
+                      /// Validates email input.
                       validator: (value) {
                         if (value == null ||
                             value.trim().isEmpty) {
@@ -218,12 +277,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         return null;
                       },
+
                       onChanged: (_) => setState(() {}),
                     ),
 
                     const SizedBox(height: 16),
 
-                    /// PASSWORD
+                    /// PASSWORD INPUT FIELD
                     TextFormField(
                       controller: passwordController,
                       obscureText: obscurePassword,
@@ -234,6 +294,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           icon: Icon(obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off),
+
+                          /// Toggles password visibility.
                           onPressed: () {
                             setState(() {
                               obscurePassword =
@@ -242,6 +304,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
+
+                      /// Validates password input.
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty) {
@@ -249,9 +313,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                         return null;
                       },
+
                       onChanged: (_) => setState(() {}),
                     ),
 
+                    /// Forgot password action.
                     Align(
                       alignment:
                           Alignment.centerRight,
@@ -269,10 +335,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 16),
 
+                    /// LOGIN BUTTON
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
+
+                        /// Disabled if form incomplete or loading.
                         onPressed: (!isFormFilled || isLoading)
                           ? null
                           : login,
@@ -307,6 +376,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
+                    /// Navigate to registration screen.
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -330,6 +400,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
+          /// Loading overlay shown during login.
           if (isLoading)
             Container(
               color:
@@ -345,6 +416,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// Returns a standard input decoration used by form fields.
+  ///
+  /// Applies consistent styling across inputs.
   InputDecoration _inputDecoration(
       String label) {
     return InputDecoration(

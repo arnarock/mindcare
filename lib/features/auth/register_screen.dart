@@ -20,19 +20,34 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Formats phone number input into XXX-XXX-XXXX pattern.
+///
+/// This formatter:
+/// - Removes non-digit characters
+/// - Limits input to 10 digits
+/// - Automatically inserts hyphens
+///
+/// Example:
+/// 0812345678 → 081-234-5678
 class PhoneNumberFormatter extends TextInputFormatter {
+
+  /// Applies formatting whenever the text field value changes.
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue,
       TextEditingValue newValue) {
+
+    /// Extract digits only.
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
 
+    /// Limit to 10 digits.
     if (digits.length > 10) {
       digits = digits.substring(0, 10);
     }
 
     String formatted = '';
 
+    /// Apply formatting based on length.
     if (digits.length <= 3) {
       formatted = digits;
     } else if (digits.length <= 6) {
@@ -42,6 +57,7 @@ class PhoneNumberFormatter extends TextInputFormatter {
           '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
     }
 
+    /// Return formatted value with cursor at end.
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -49,16 +65,41 @@ class PhoneNumberFormatter extends TextInputFormatter {
   }
 }
 
+/// Registration screen for creating a new user account.
+///
+/// Allows users to sign up using email and password.
+/// Stores additional profile data in Firestore.
+///
+/// Features:
+/// - Input validation for all fields
+/// - Phone number formatting
+/// - Password visibility toggle
+/// - Email verification
+/// - Loading overlay during registration
+/// - Navigation back to login screen
+///
+/// Notes:
+/// - Uses Firebase Authentication and Firestore
+/// - Newly created users are assigned role "user"
 class RegisterScreen extends StatefulWidget {
+
+  /// Creates a [RegisterScreen].
   const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
+/// State class for [RegisterScreen].
+///
+/// Manages form inputs, validation,
+/// authentication, and UI state.
 class _RegisterScreenState extends State<RegisterScreen> {
+
+  /// Key used to validate the registration form.
   final _formKey = GlobalKey<FormState>();
 
+  /// Controllers for user input fields.
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneController = TextEditingController();
@@ -66,9 +107,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
 
+  /// Controls password visibility.
   bool obscurePassword = true;
+
+  /// Indicates whether registration is in progress.
   bool isLoading = false;
 
+  /// Returns true if all required fields are filled.
   bool get isFormFilled =>
       firstNameController.text.trim().isNotEmpty &&
       lastNameController.text.trim().isNotEmpty &&
@@ -77,6 +122,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       passwordController.text.isNotEmpty &&
       confirmController.text.isNotEmpty;
 
+  /// Creates a new user account using Firebase Authentication.
+  ///
+  /// Steps:
+  /// 1. Validate form inputs
+  /// 2. Create authentication account
+  /// 3. Send email verification
+  /// 4. Store user profile data in Firestore
+  /// 5. Show success message
+  ///
+  /// Async behavior:
+  /// - Performs network requests
+  ///
+  /// Side effects:
+  /// - Shows loading overlay
+  /// - Displays SnackBar messages
+  /// - Navigates back to login screen on success
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -89,8 +150,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: passwordController.text,
       );
 
+      /// Send verification email.
       await userCredential.user!.sendEmailVerification();
 
+      /// Save user profile data to Firestore.
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -105,6 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (!mounted) return;
 
+      /// Show success message.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -113,8 +177,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
 
+      /// Return to login screen.
       Navigator.pop(context);
+
     } on FirebaseAuthException catch (e) {
+
       String message;
 
       if (e.code == 'email-already-in-use') {
@@ -129,6 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (!mounted) return;
 
+      /// Show error message.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -145,16 +213,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Builds the registration form UI.
     return Scaffold(
       body: Stack(
         children: [
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
+
+              /// Form containing all input fields.
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
+
+                    /// App logo.
                     Image.asset(
                       'assets/images/logo/logo_with_name.png',
                       width: 100,
@@ -163,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 45),
 
-                    /// First Name
+                    /// First Name input
                     TextFormField(
                       controller: firstNameController,
                       decoration: _inputDecoration("First Name"),
@@ -181,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 12),
 
-                    /// Last Name
+                    /// Last Name input
                     TextFormField(
                       controller: lastNameController,
                       decoration: _inputDecoration("Last Name"),
@@ -199,7 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 12),
 
-                    /// Phone
+                    /// Phone Number input with formatter
                     TextFormField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
@@ -222,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 12),
 
-                    /// Email
+                    /// Email input
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -239,14 +313,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (!emailRegex.hasMatch(email)) {
                           return "Invalid email format";
                         }
-
                         return null;
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 12),
 
-                    /// Password
+                    /// Password input
                     TextFormField(
                       controller: passwordController,
                       obscureText: obscurePassword,
@@ -273,9 +347,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (_) => setState(() {}),
                     ),
+
                     const SizedBox(height: 12),
 
-                    /// Confirm Password
+                    /// Confirm Password input
                     TextFormField(
                       controller: confirmController,
                       obscureText: obscurePassword,
@@ -294,12 +369,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 24),
 
+                    /// Register button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: (!isFormFilled || isLoading) 
-                          ? null 
+                        onPressed: (!isFormFilled || isLoading)
+                          ? null
                           : register,
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.resolveWith((states) {
@@ -332,6 +408,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 16),
 
+                    /// Back to login action
                     TextButton(
                       onPressed: () {
                         if (mounted) Navigator.pop(context);
@@ -344,6 +421,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
 
+          /// Loading overlay
           if (isLoading)
             Container(
               color: Colors.black.withValues(alpha: 0.4),
@@ -358,6 +436,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
+  /// Returns a reusable input decoration for form fields.
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,

@@ -26,13 +26,21 @@ import 'package:mindcare/features/mood/mood_calendar.dart';
 import 'package:mindcare/features/meditation/meditation_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
 
+/// Main dashboard screen shown after user login.
+///
+/// Displays personalized greeting, inspiration content,
+/// mood statistics, meditation streak, and navigation
+/// to main features of the application.
+///
+/// Requires authenticated user and Firestore profile data.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
+/// State class that manages UI logic, auto-sliding carousel,
+/// and asynchronous data display.
 class _HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
 

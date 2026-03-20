@@ -15,10 +15,21 @@
 * - Nanticha Muangpun 650510623
 * Course: Mobile App Development
 */
+
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mindcare/core/layout/app_layout.dart';
 
+/// Meditation screen that guides users through a timed
+/// breathing meditation session.
+///
+/// Features:
+/// - Countdown timer
+/// - Breathing animation
+/// - Start / Pause / Reset controls
+/// - Adjustable session duration
+/// - Completion dialog when finished
 class MeditationPage extends StatefulWidget {
   const MeditationPage({super.key});
 
@@ -26,18 +37,31 @@ class MeditationPage extends StatefulWidget {
   State<MeditationPage> createState() => _MeditationPageState();
 }
 
+/// State class that manages timer logic, animation,
+/// and user interactions during the meditation session.
 class _MeditationPageState extends State<MeditationPage>
     with SingleTickerProviderStateMixin {
 
   /// ค่าเริ่มต้น 5 นาที
+  /// Remaining time in seconds.
   int remainingSeconds = 300;
+
+  /// Total session duration in seconds.
   int sessionSeconds = 300;
 
+  /// Timer for countdown.
   Timer? timer;
+
+  /// Indicates whether the timer is currently running.
   bool isRunning = false;
+
+  /// Indicates whether a session has started at least once.
   bool hasStarted = false;
 
+  /// Animation controller for breathing effect.
   late AnimationController _breathController;
+
+  /// Scale animation used to simulate breathing in/out.
   late Animation<double> _breathAnimation;
 
   @override
@@ -64,6 +88,7 @@ class _MeditationPageState extends State<MeditationPage>
   /// --------------------------
   /// เลือกเวลา
   /// --------------------------
+  /// Opens bottom sheet for selecting meditation duration.
   Future<void> _showSetTime() async {
     final selectedMinutes = await showModalBottomSheet<int>(
       context: context,
@@ -74,6 +99,7 @@ class _MeditationPageState extends State<MeditationPage>
       builder: (context) => const SetTimeSheet(),
     );
 
+    /// Update session time if user selects a value.
     if (selectedMinutes != null) {
       timer?.cancel();
 
@@ -89,6 +115,7 @@ class _MeditationPageState extends State<MeditationPage>
   /// --------------------------
   /// เริ่มจับเวลา
   /// --------------------------
+  /// Starts countdown timer that updates every second.
   void startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingSeconds > 0) {
@@ -103,12 +130,14 @@ class _MeditationPageState extends State<MeditationPage>
           isRunning = false;
         });
 
+        /// Show completion dialog when session ends.
         _showCompletionDialog();
       }
     });
   }
 
   /// START / PAUSE
+  /// Toggles between starting and pausing the session.
   void toggleTimer() {
     if (isRunning) {
       timer?.cancel();
@@ -125,6 +154,7 @@ class _MeditationPageState extends State<MeditationPage>
   }
 
   /// RESET
+  /// Resets timer and animation to initial state.
   void resetTimer() {
     timer?.cancel();
     _breathController.stop();
@@ -137,6 +167,7 @@ class _MeditationPageState extends State<MeditationPage>
   }
 
   /// POP-UP เมื่อครบเวลา
+  /// Displays dialog indicating session completion.
   void _showCompletionDialog() {
     final completedMinutes = sessionSeconds ~/ 60;
 
@@ -192,6 +223,7 @@ class _MeditationPageState extends State<MeditationPage>
 
   @override
   void dispose() {
+    /// Cancel timer and dispose animation to prevent leaks.
     timer?.cancel();
     _breathController.dispose();
     super.dispose();
@@ -199,6 +231,7 @@ class _MeditationPageState extends State<MeditationPage>
 
   @override
   Widget build(BuildContext context) {
+    /// Builds the meditation session UI.
     return AppLayout(
       child: Container(
         color: Colors.white,
@@ -208,7 +241,7 @@ class _MeditationPageState extends State<MeditationPage>
 
             const SizedBox(height: 20),
 
-            /// Header
+            /// Header with page title and time settings button.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -235,7 +268,7 @@ class _MeditationPageState extends State<MeditationPage>
 
             const SizedBox(height: 60),
 
-            /// Breathing Circle
+            /// Breathing Circle animation.
             ScaleTransition(
               scale: _breathAnimation,
               child: Container(
@@ -265,7 +298,7 @@ class _MeditationPageState extends State<MeditationPage>
 
             const SizedBox(height: 60),
 
-            /// Buttons
+            /// Control buttons (Start/Pause and Reset).
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -288,6 +321,7 @@ class _MeditationPageState extends State<MeditationPage>
                   ),
                 ),
 
+                /// Reset button shown only after session starts.
                 if (hasStarted) ...[
                   const SizedBox(width: 16),
 
@@ -314,6 +348,8 @@ class _MeditationPageState extends State<MeditationPage>
 /// ------------------------------
 /// หน้าเลือกเวลา
 /// ------------------------------
+
+/// Bottom sheet for selecting meditation duration in minutes.
 class SetTimeSheet extends StatefulWidget {
   const SetTimeSheet({super.key});
 
@@ -321,12 +357,16 @@ class SetTimeSheet extends StatefulWidget {
   State<SetTimeSheet> createState() => _SetTimeSheetState();
 }
 
+/// State class for time selection sheet.
 class _SetTimeSheetState extends State<SetTimeSheet> {
 
+  /// Currently selected duration in minutes.
   int selectedMinutes = 5;
 
   @override
   Widget build(BuildContext context) {
+
+    /// Builds scrollable wheel picker for time selection.
     return SizedBox(
       height: 400,
       child: Column(
@@ -334,6 +374,7 @@ class _SetTimeSheetState extends State<SetTimeSheet> {
 
           const SizedBox(height: 20),
 
+          /// Drag indicator.
           Container(
             width: 40,
             height: 4,
@@ -355,6 +396,7 @@ class _SetTimeSheetState extends State<SetTimeSheet> {
 
           const SizedBox(height: 20),
 
+          /// Wheel selector for minutes (1–60).
           Expanded(
             child: ListWheelScrollView.useDelegate(
               itemExtent: 60,
@@ -383,6 +425,7 @@ class _SetTimeSheetState extends State<SetTimeSheet> {
             ),
           ),
 
+          /// Confirm button returning selected time.
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: ElevatedButton(

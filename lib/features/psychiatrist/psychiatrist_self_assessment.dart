@@ -11,8 +11,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
 
+/// Self-assessment questionnaire page (TMHI-55)
+/// Supports two modes:
+/// - Normal mode (take assessment)
+/// - View only mode (read previous answers)
 class PsychiatristSelfAssessmentPage extends StatefulWidget {
+  /// true = view only (cannot change answers)
   final bool isViewOnly;
+  /// Used when admin views another user's result
   final String? userId;
 
   const PsychiatristSelfAssessmentPage({
@@ -24,7 +30,7 @@ class PsychiatristSelfAssessmentPage extends StatefulWidget {
   @override
   State<PsychiatristSelfAssessmentPage> createState() => _PsychiatristSelfAssessmentPageState();
 }
-
+/// All questionnaire statements (55 items)
 class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessmentPage> {
   final List<String> questions = [
     "ท่านรู้สึกพึงพอใจในชีวิต",

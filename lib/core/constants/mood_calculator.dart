@@ -7,7 +7,14 @@
 * - 
 * - 
 */
+
+/// A utility class for calculating mood scores and converting between
+/// mood labels and numerical scores.
 class MoodCalculator {
+  /// A mapping of mood labels to their corresponding numerical scores.
+  ///
+  /// Positive numbers indicate positive moods, negative numbers indicate
+  /// negative moods, and zero or low positive numbers indicate neutral moods.
   static const Map<String, int> moodScore = {
     "Ecstatic": 5,
     "Excited": 4,
@@ -20,7 +27,12 @@ class MoodCalculator {
     "Stressed": -5,
   };
 
-  // calculate average score from mood list
+  /// Calculates the average numerical score from a list of mood labels.
+  ///
+  /// Returns 0 if the list is empty.
+  ///
+  /// [moods]: A list of mood strings.
+  /// Returns the average score as a double.
   static double calculateAverageScore(List<String> moods) {
     if (moods.isEmpty) return 0;
     int total = 0;
@@ -30,7 +42,10 @@ class MoodCalculator {
     return total / moods.length;
   }
 
-  // convert score  to mood
+  /// Converts an average score into a corresponding mood label.
+  ///
+  /// [avg]: The average score as a double.
+  /// Returns a string representing the average mood.
   static String scoreToMood(double avg) {
     if (avg >= 4.5) return "Ecstatic";
     if (avg >= 3.5) return "Excited";
@@ -43,7 +58,13 @@ class MoodCalculator {
     return "Stressed";
   }
 
-  // cal score and mood
+  /// Calculates both the average score and the corresponding average mood
+  /// from a list of mood labels.
+  ///
+  /// [moods]: A list of mood strings.
+  /// Returns a map containing:
+  /// - "averageScore": The numerical average score.
+  /// - "averageMood": The mood label corresponding to the average score.
   static Map<String, dynamic> calculate(List<String> moods) {
     double avgScore = calculateAverageScore(moods);
     String avgMood = scoreToMood(avgScore);
