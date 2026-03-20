@@ -9,7 +9,8 @@
 * - ใช้ NotificationService ในการแสดงแจ้งเตือน
 * - ทำงานร่วมกับ Firebase Auth และ Firestore เพื่อดึงข้อมูลผู้ใช้และคะแนนอารมณ์
 *
-* Authors: <Anajak Chuamuangphan 650510692 / zoozoo>
+* Authors:
+* - Anajak Chuamuangphan 650510692
 * Course: Mobile App Development
 */
 import 'dart:math';

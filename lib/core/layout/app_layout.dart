@@ -11,7 +11,9 @@
 * - ปุ่ม Logout ออกจากระบบและกลับไปหน้า Login
 * - รองรับการซ่อนปุ่ม Profile และการกำหนดหน้า Home
 *
-* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

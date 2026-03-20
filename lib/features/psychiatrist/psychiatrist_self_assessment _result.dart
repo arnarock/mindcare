@@ -2,10 +2,27 @@
 * File: psychiatrist_self_assessment_result.dart
 * Description: Displays mental health self-assessment results by retrieving data from Firebase Firestore. Shows score interpretation, feedback messages, and provides navigation to chat with a psychiatrist and assessment history.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Note:
+* - Uses Firestore to retrieve assessment results from self_assessment_results/{userId}.
+* - Supports both user view and admin view via [isAdminView].
+* - Displays result interpretation, description, and related UI elements.
+* - Navigates to chat or assessment pages based on user interaction.
+*
+* Lifecycle:
+* - build(): Subscribes to assessment result data via StreamBuilder.
+* - Stream updates trigger UI rebuild when result data changes.
+* - _getResultThai(): Maps result level to Thai description.
+* - _getDescription(): Provides detailed feedback based on result level.
+*
+* Responsibilities:
+* - Display assessment score and result interpretation.
+* - Show detailed mental health feedback.
+* - Provide navigation to chat with psychiatrist.
+* - Allow users to retake assessment or view history.
+* - Support admin view for monitoring user results.
+*
+* Authors: 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

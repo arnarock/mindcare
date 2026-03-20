@@ -2,10 +2,28 @@
 * File: admin_chat_page.dart
 * Description: Admin chat interface for the MindCare app, allowing administrators to communicate with users in real-time. Includes message sending, viewing chat history, marking messages as read, and accessing user self-assessment results directly from the chat.
 *
+* Note:
+* - Uses Firestore for real-time messaging and chat state management.
+* - Messages are stored in a subcollection ('messages') under each chat document.
+* - Assumes chatId is the same as userId for fetching user and assessment data.
+* - Relies on FirebaseAuth to identify the current admin user.
+*
+* Lifecycle:
+* - initState(): Marks the chat as read for admin when entering the page.
+* - build(): Subscribes to message stream via StreamBuilder and rebuilds on updates.
+* - sendMessage(): Adds a new message and updates chat metadata.
+* - _markAsRead(): Updates unread status in Firestore.
+* - _openAssessment(): Fetches and navigates to the user’s assessment result if available.
+*
+* Responsibilities:
+* - Display real-time chat messages between admin and user.
+* - Differentiate UI between admin and user messages.
+* - Send messages and update chat metadata.
+* - Mark messages as read for admin.
+* - Provide access to user self-assessment results.
+*
 * Authors:
-* -  
-* - 
-* - 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

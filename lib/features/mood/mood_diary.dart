@@ -2,10 +2,27 @@
 * File: mood_diary.dart
 * Description: Mood diary page for recording, viewing, editing, and deleting daily mood entries, with automatic calculation of average mood and navigation between dates.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Note:
+* - Uses Firestore to store daily mood entries under users/{uid}/moods/{date}.
+* - Each document contains a list of entries, averageMood, and averageScore.
+* - Relies on MoodCalculator for computing average mood and score.
+* - Uses MoodImages for mapping mood labels to UI assets.
+*
+* Lifecycle:
+* - initState(): Initializes the selected date.
+* - build(): Subscribes to mood data via StreamBuilder and rebuilds on updates.
+* - setState(): Updates UI when navigating dates or picking a new date.
+* - deleteMood(): Updates Firestore and recalculates average after deletion.
+*
+* Responsibilities:
+* - Display daily mood summary including average mood and total entries.
+* - List all mood entries with time, note, and actions.
+* - Allow navigation between dates and date selection.
+* - Support editing and deleting mood entries.
+* - Recalculate and persist updated mood data.
+*
+* Authors: 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

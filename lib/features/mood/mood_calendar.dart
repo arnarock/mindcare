@@ -10,7 +10,9 @@
 * - ปุ่มเพิ่ม Mood สำหรับวันที่ปัจจุบัน
 * - ใช้ StreamBuilder ดึงข้อมูล Mood จาก Firestore แบบ real-time
 *
-* Authors: <Anajak Chuamuangphan 650510692 / zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

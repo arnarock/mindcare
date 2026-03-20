@@ -9,7 +9,9 @@
 * - ปุ่ม Log Out ออกจากระบบและกลับไปหน้า Login
 * - ใช้ StreamBuilder ดึงข้อมูลผู้ใช้จาก Firestore แบบ real-time
 *
-* Authors: <Anajak Chuamuangphan>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

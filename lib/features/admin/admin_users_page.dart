@@ -2,10 +2,25 @@
 * File: admin_users_page.dart
 * Description: Admin interface for managing users in the MindCare app. Allows viewing all registered users, searching by name or email, and updating user roles to grant or revoke admin privileges in real time.
 *
+* Note:
+* - Uses Firestore real-time stream to display user data.
+* - Assumes each user document contains firstName, lastName, email, phone, and role fields.
+* - Role values are expected to be either "user" or "admin".
+*
+* Lifecycle:
+* - build(): Initializes UI and subscribes to user data via StreamBuilder.
+* - Stream updates trigger UI rebuild when user data changes.
+* - setState(): Updates search text and filters displayed users in real-time.
+* - makeAdmin()/removeAdmin(): Updates user role in Firestore.
+*
+* Responsibilities:
+* - Display a list of all registered users.
+* - Provide search functionality by name or email.
+* - Show user details including name, email, phone, and role.
+* - Allow admin role assignment and removal.
+*
 * Authors:
-* -  
-* - 
-* - 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

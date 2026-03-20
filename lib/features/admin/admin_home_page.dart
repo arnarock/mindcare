@@ -2,10 +2,24 @@
 * File: admin_home_page.dart
 * Description: Admin dashboard for the MindCare app, providing quick access to user management and chat support features. Displays a personalized greeting and allows navigation to manage users or interact with users via support chats.
 *
+* Note:
+* - Uses FirebaseAuth to identify the currently logged-in admin.
+* - Uses Firestore stream to fetch and update user profile data in real-time.
+* - Wrapped with AppLayout for consistent application structure.
+*
+* Lifecycle:
+* - build(): Checks authentication state and subscribes to user data via StreamBuilder.
+* - Stream updates trigger UI rebuild when user profile data changes.
+* - _menuCard(): Builds reusable navigation cards for admin features.
+*
+* Responsibilities:
+* - Display personalized greeting for the admin.
+* - Provide navigation to user management and chat support pages.
+* - Handle loading, empty, and unauthenticated states.
+* - Maintain consistent UI layout using AppLayout.
+*
 * Authors:
-* -  
-* - 
-* - 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 

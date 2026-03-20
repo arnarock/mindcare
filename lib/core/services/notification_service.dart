@@ -8,7 +8,8 @@
 * - แสดงการแจ้งเตือนแบบ high-priority สำหรับ Mood Reminder
 * - ใช้งาน NotificationService ได้แบบ static ทั่วทั้งแอป
 *
-* Authors: <Anajak Chuamuangphan 650510692/ zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
 * Course: Mobile App Development
 */
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';

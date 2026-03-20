@@ -2,10 +2,25 @@
 * File: psychiatrist_chat_page.dart
 * Description: Chat interface for users to communicate with a psychiatrist, including sending and receiving messages and quick access to mental health self-assessments.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Note:
+* - Uses Firestore for real-time messaging under chats/{userId}/messages.
+* - Assumes chat document stores metadata such as lastMessage, lastTimestamp, and unreadForAdmin.
+* - Relies on FirebaseAuth to identify the current user.
+* - Navigates to self-assessment or result page based on data existence.
+*
+* Lifecycle:
+* - build(): Subscribes to message stream via StreamBuilder and rebuilds on updates.
+* - _sendMessage(): Adds a new message and updates chat metadata.
+* - _openAssessment(): Checks assessment data and navigates accordingly.
+*
+* Responsibilities:
+* - Display real-time chat messages between user and psychiatrist.
+* - Differentiate UI between user and admin messages.
+* - Send messages and update chat state.
+* - Provide access to self-assessment and results.
+*
+* Authors: 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

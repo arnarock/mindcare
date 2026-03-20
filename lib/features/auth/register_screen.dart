@@ -12,7 +12,9 @@
 * - เก็บข้อมูลผู้ใช้ใน Firestore
 * - แสดง Snackbar แจ้งผลสำเร็จหรือข้อผิดพลาด
 *
-* Authors: <Anajak Chuamuangphan / zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

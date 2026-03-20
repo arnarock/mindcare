@@ -11,7 +11,9 @@
 *   - AdminHomePage สำหรับผู้ดูแลระบบ
 * - แสดง loading indicator ขณะรอสถานะผู้ใช้หรือดึงข้อมูล role
 *
-* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

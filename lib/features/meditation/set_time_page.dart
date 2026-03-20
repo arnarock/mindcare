@@ -12,6 +12,7 @@
 *
 * Authors: 
 * - Nanticha Muangpun 650510623
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

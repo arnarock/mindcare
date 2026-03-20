@@ -12,7 +12,9 @@
 * - แสดงข้อความข้อผิดพลาดผ่าน SnackBar
 * - ปุ่มนำทางไปหน้า Register สำหรับผู้ใช้ใหม่
 *
-* Authors: <Anajak Chuamuangphan / zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Atitaya Khangtan 650510650
 * Course: Mobile App Development
 */
 import 'package:flutter/material.dart';

@@ -2,10 +2,29 @@
 * File: psychiatrist_page.dart
 * Description: Main psychiatrist dashboard page that welcomes the user and provides access to chat with a psychiatrist and view or take mental health self-assessments.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Note:
+* - Uses FirebaseAuth to identify the current user.
+* - Uses Firestore stream to fetch user profile data in real-time.
+* - Navigates to self-assessment or result page based on existing data.
+* - Wrapped with AppLayout for consistent UI structure.
+*
+* Lifecycle:
+* - build(): Checks authentication state and subscribes to user data via StreamBuilder.
+* - Stream updates trigger UI rebuild when user data changes.
+* - _optionCard(): Builds reusable UI components for navigation options.
+*
+* Responsibilities:
+* - Display personalized welcome message.
+* - Provide navigation to chat and self-assessment features.
+* - Handle loading, empty, and unauthenticated states.
+* - Maintain consistent layout using AppLayout.
+*
+* Limitations:
+* - Re-fetches assessment data on each tap, which may increase Firestore reads.
+* - No caching for user profile data.
+*
+* Authors: 
+* - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

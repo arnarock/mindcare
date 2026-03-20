@@ -8,7 +8,8 @@
 * - แสดงการแจ้งเตือนแบบ high-priority สำหรับ Mood Reminder
 * - ใช้งาน NotificationService ได้แบบ static ทั่วทั้งแอป
 *
-* Authors: <Anajak Chuamuangphan 650510692/ zoozoo>
+* Authors: 
+* - Anajak Chuamuangphan 650510692
 * Course: Mobile App Development
 */
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +18,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class MoodStatsService {
 
  static Future<double> getHealthyPercentage() async {
-
   final user = FirebaseAuth.instance.currentUser;
     if (user == null) return 0;
 
@@ -53,12 +53,10 @@ class MoodStatsService {
         healthy++;
       }
     }
-
     return (healthy / snapshot.docs.length) * 100;
   }
 
   static Future<double> getAverageMood() async {
-
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return 0;
 
@@ -92,8 +90,6 @@ class MoodStatsService {
 
       total += score;
     }
-
     return total / snapshot.docs.length;
   }
-
 }
