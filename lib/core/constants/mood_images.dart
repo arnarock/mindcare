@@ -2,10 +2,13 @@
 * File: mood_images.dart
 * Description: Defines a mapping between mood states and their corresponding image asset paths for use in the app’s mood tracking and display features.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - จัดเก็บแผนที่ (Map) ระหว่างชื่ออารมณ์และ path ของรูปภาพ
+* - ใช้ใน MoodCalendar, MoodDiary, และ Notifications เพื่อแสดงไอคอนอารมณ์
+* - รองรับอารมณ์หลักทั้งหมด เช่น Ecstatic, Excited, Happy, Calm, Bored, Tired, Worried, Sad, Stressed
+*
+* Authors: <Anajak Chuamuangphan>
+* Course: Mobile App Development 
 */
 class MoodImages {
   static const Map<String, String> map = {

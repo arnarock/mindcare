@@ -2,10 +2,15 @@
 * File: profile_screen.dart
 * Description: User profile screen displaying personal information (name, email, phone), email verification status, and options to refresh status or log out.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แสดงข้อมูลผู้ใช้: ชื่อ, เบอร์โทร, อีเมล
+* - แสดงสถานะการยืนยันอีเมล และปุ่มส่งอีเมลยืนยันใหม่
+* - ปุ่ม Refresh Status เพื่อโหลดข้อมูลผู้ใช้ใหม่ 
+* - ปุ่ม Log Out ออกจากระบบและกลับไปหน้า Login
+* - ใช้ StreamBuilder ดึงข้อมูลผู้ใช้จาก Firestore แบบ real-time
+*
+* Authors: <Anajak Chuamuangphan>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

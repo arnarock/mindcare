@@ -2,10 +2,14 @@
 * File: notification_service.dart
 * Description: Provides a centralized service for initializing and displaying local push notifications on Android devices, including support for high-priority mood reminders in the MindCare app.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - Initialize local notification settings for Android devices
+* - ขออนุญาตการแจ้งเตือนจากผู้ใช้
+* - แสดงการแจ้งเตือนแบบ high-priority สำหรับ Mood Reminder
+* - ใช้งาน NotificationService ได้แบบ static ทั่วทั้งแอป
+*
+* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 

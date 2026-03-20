@@ -2,10 +2,13 @@
 * File: main.dart
 * Description: Application entry point. Initializes Firebase and notification services, configures app theme, and launches the MindCare app with authentication gate.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - Initialize Firebase
+* - Initialize Notification service
+* - รันแอปพร้อม AuthGate เพื่อตรวจสอบสถานะผู้ใช้
+*
+* Authors: <Anajak Chuamuangphan / zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

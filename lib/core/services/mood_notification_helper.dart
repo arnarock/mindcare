@@ -2,10 +2,15 @@
 * File: mood_notification_helper.dart
 * Description: Provides utilities for generating personalized mood-based notifications for users, converting mood scores to descriptive moods, selecting encouraging messages, and sending daily reminders via local notifications.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แปลงคะแนนอารมณ์เป็นคำอธิบายอารมณ์ (scoreToMood)
+* - เลือกข้อความให้กำลังใจตามอารมณ์ของผู้ใช้ (moodToMessage)
+* - ส่งการแจ้งเตือนรายวันสำหรับผู้ใช้ที่ยังไม่ได้บันทึกอารมณ์
+* - ใช้ NotificationService ในการแสดงแจ้งเตือน
+* - ทำงานร่วมกับ Firebase Auth และ Firestore เพื่อดึงข้อมูลผู้ใช้และคะแนนอารมณ์
+*
+* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Course: Mobile App Development
 */
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';

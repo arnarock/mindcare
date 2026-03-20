@@ -2,10 +2,18 @@
 * File: register_screen.dart
 * Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - กรอกข้อมูลผู้ใช้: ชื่อ, นามสกุล, เบอร์โทร, อีเมล, รหัสผ่าน
+* - ตรวจสอบความถูกต้องของข้อมูลและรูปแบบอีเมล/รหัสผ่าน
+* - สลับการมองเห็นรหัสผ่าน
+* - ฟอร์แมตเบอร์โทรอัตโนมัติ
+* - สร้างบัญชีผู้ใช้ด้วย Firebase Authentication
+* - ส่งอีเมลยืนยันบัญชี
+* - เก็บข้อมูลผู้ใช้ใน Firestore
+* - แสดง Snackbar แจ้งผลสำเร็จหรือข้อผิดพลาด
+*
+* Authors: <Anajak Chuamuangphan / zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

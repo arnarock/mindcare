@@ -2,10 +2,17 @@
 * File: app_layout.dart
 * Description: Provides a reusable application layout with a header including logo navigation, notifications, profile access, and optional logout, wrapping the main content area for both user and admin views.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - สร้าง Layout หลักของแอปพร้อม SafeArea และ Column
+* - แสดง Header ประกอบด้วย Logo, ปุ่มแจ้งเตือน, ปุ่มเข้า Profile, และ Logout (ถ้าเป็นหน้า Home)
+* - โลโก้สามารถนำทางไปหน้า Home หรือ Admin Home ตาม role ของผู้ใช้
+* - ปุ่ม Notification เรียก MoodNotificationHelper เพื่อส่งการแจ้งเตือนรายวัน
+* - ปุ่ม Profile นำไปหน้า ProfileScreen
+* - ปุ่ม Logout ออกจากระบบและกลับไปหน้า Login
+* - รองรับการซ่อนปุ่ม Profile และการกำหนดหน้า Home
+*
+* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

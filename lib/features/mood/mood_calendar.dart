@@ -2,10 +2,16 @@
 * File: mood_calendar.dart
 * Description: Interactive mood calendar page that displays a monthly overview of daily mood entries, allows navigation between months and years, and provides quick access to add or view detailed mood diary entries for each day.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แสดงภาพรวมรายเดือนของอารมณ์ผู้ใช้ในแต่ละวัน
+* - เลื่อนดูเดือนต่าง ๆ และเลือกปี
+* - แสดงไอคอนอารมณ์ของแต่ละวัน และเน้นวันที่ปัจจุบัน
+* - แตะวันเพื่อดู Mood Diary รายวัน (ถ้ามีข้อมูล)
+* - ปุ่มเพิ่ม Mood สำหรับวันที่ปัจจุบัน
+* - ใช้ StreamBuilder ดึงข้อมูล Mood จาก Firestore แบบ real-time
+*
+* Authors: <Anajak Chuamuangphan / zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

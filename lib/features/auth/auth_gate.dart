@@ -2,10 +2,17 @@
 * File: auth_gate.dart
 * Description: Authentication gateway that manages user access in the MindCare app. It listens to Firebase Auth state changes, checks the user’s role from Firestore, and directs users to the appropriate screen: login for unauthenticated users, home for regular users, or admin dashboard for administrators.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - ฟังสถานะผู้ใช้จาก Firebase Auth แบบ real-time
+* - ตรวจสอบ role ของผู้ใช้จาก Firestore
+* - นำทางผู้ใช้ไปยังหน้าที่เหมาะสม: 
+*   - LoginScreen สำหรับผู้ใช้ที่ยังไม่ได้เข้าสู่ระบบ
+*   - HomePage สำหรับผู้ใช้ปกติ
+*   - AdminHomePage สำหรับผู้ดูแลระบบ
+* - แสดง loading indicator ขณะรอสถานะผู้ใช้หรือดึงข้อมูล role
+*
+* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

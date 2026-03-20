@@ -2,10 +2,14 @@
 * File: mood_stats_service.dart
 * Description: Provides methods to calculate mood statistics for the current user, including the monthly average mood score and the percentage of days with a “healthy” mood, based on Firestore data.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - Initialize local notification settings for Android devices
+* - ขออนุญาตการแจ้งเตือนจากผู้ใช้
+* - แสดงการแจ้งเตือนแบบ high-priority สำหรับ Mood Reminder
+* - ใช้งาน NotificationService ได้แบบ static ทั่วทั้งแอป
+*
+* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Course: Mobile App Development
 */
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
