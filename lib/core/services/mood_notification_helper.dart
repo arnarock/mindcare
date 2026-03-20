@@ -2,25 +2,55 @@
 * File: mood_notification_helper.dart
 * Description: Provides utilities for generating personalized mood-based notifications for users, converting mood scores to descriptive moods, selecting encouraging messages, and sending daily reminders via local notifications.
 *
-* Responsibilities:
-* - แปลงคะแนนอารมณ์เป็นคำอธิบายอารมณ์ (scoreToMood)
-* - เลือกข้อความให้กำลังใจตามอารมณ์ของผู้ใช้ (moodToMessage)
-* - ส่งการแจ้งเตือนรายวันสำหรับผู้ใช้ที่ยังไม่ได้บันทึกอารมณ์
-* - ใช้ NotificationService ในการแสดงแจ้งเตือน
-* - ทำงานร่วมกับ Firebase Auth และ Firestore เพื่อดึงข้อมูลผู้ใช้และคะแนนอารมณ์
-*
 * Authors:
 * - Anajak Chuamuangphan 650510692
 * Course: Mobile App Development
 */
+
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'notification_service.dart';
 
+/// Provides helper utilities for generating personalized
+/// mood-based notifications for users.
+///
+/// This class converts mood scores into descriptive mood labels,
+/// selects encouraging messages based on the detected mood,
+/// and sends daily reminders via local notifications.
+///
+/// It integrates with Firebase Authentication and Firestore
+/// to retrieve user data and mood records.
+///
+/// Responsibilities:
+/// - Convert average mood scores into mood categories
+/// - Select supportive messages based on the user's mood
+/// - Send daily notifications for users who have not logged mood
+/// - Deliver notifications using [NotificationService]
+///
+/// Notes:
+/// - All methods are static and the class is not intended
+///   to be instantiated
+/// - Requires Firebase services to be initialized
+/// - Notifications are shown locally on the device
 class MoodNotificationHelper {
+
+  /// Random generator used for selecting messages.
+  ///
+  /// Ensures that users receive varied notification messages
+  /// instead of the same message repeatedly.
   static final Random _random = Random();
 
+  /// Converts an average mood score into a descriptive mood label.
+  ///
+  /// The score is expected to range from negative (low mood)
+  /// to positive (high mood).
+  ///
+  /// Returns a string representing the corresponding mood
+  /// category such as "Happy", "Sad", or "Stressed".
+  ///
+  /// Thresholds are ordered from highest positive emotion
+  /// to lowest negative emotion.
   static String scoreToMood(double avg) {
     if (avg >= 4.5) return "Ecstatic";
     if (avg >= 3.5) return "Excited";
@@ -33,6 +63,15 @@ class MoodNotificationHelper {
     return "Stressed";
   }
 
+  /// Selects a supportive message corresponding to the given mood.
+  ///
+  /// Returns a randomly chosen encouraging message from a
+  /// predefined list associated with the specified mood.
+  ///
+  /// If the mood is not recognized or no messages are defined,
+  /// a default reminder message is returned instead.
+  ///
+  /// The randomness helps prevent repetitive notifications.
   static String moodToMessage(String mood) {
     final Map<String, List<String>> messages = {
 
@@ -118,6 +157,26 @@ class MoodNotificationHelper {
     return moodMessages[_random.nextInt(moodMessages.length)];
   }
 
+  /// Sends a personalized mood notification for the current day.
+  ///
+  /// This method retrieves the authenticated user's mood record
+  /// from Firestore. If the user has not logged their mood today,
+  /// a reminder notification is sent.
+  ///
+  /// Otherwise, the stored mood score is converted into a mood
+  /// label, an appropriate message is selected, and a notification
+  /// is displayed.
+  ///
+  /// Async behavior:
+  /// - Performs network/database operations via Firebase
+  /// - May take time depending on connectivity
+  ///
+  /// Failure conditions:
+  /// - Does nothing if no user is signed in
+  /// - Uses a default score of 0 if mood data is missing
+  ///
+  /// Side effects:
+  /// - Displays a local notification via [NotificationService]
   static Future<void> sendTodayMoodNotification() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;

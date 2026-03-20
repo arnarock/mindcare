@@ -2,39 +2,53 @@
 * File: admin_users_page.dart
 * Description: Admin interface for managing users in the MindCare app. Allows viewing all registered users, searching by name or email, and updating user roles to grant or revoke admin privileges in real time.
 *
-* Note:
-* - Uses Firestore real-time stream to display user data.
-* - Assumes each user document contains firstName, lastName, email, phone, and role fields.
-* - Role values are expected to be either "user" or "admin".
-*
-* Lifecycle:
-* - build(): Initializes UI and subscribes to user data via StreamBuilder.
-* - Stream updates trigger UI rebuild when user data changes.
-* - setState(): Updates search text and filters displayed users in real-time.
-* - makeAdmin()/removeAdmin(): Updates user role in Firestore.
-*
-* Responsibilities:
-* - Display a list of all registered users.
-* - Provide search functionality by name or email.
-* - Show user details including name, email, phone, and role.
-* - Allow admin role assignment and removal.
-*
 * Authors:
 * - Atitaya Khangtan 650510650
 */
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Displays a management interface for administrators to
+/// view and control user accounts.
+///
+/// This page shows a searchable list of users retrieved
+/// from Firestore in real time. Admins can promote users
+/// to admin role or revoke admin privileges.
+///
+/// Responsibilities:
+/// - Display a list of all registered users
+/// - Provide search functionality by name or email
+/// - Show user details (name, email, phone, role)
+/// - Allow admin role assignment and removal
+///
+/// Notes:
+/// - Uses Firestore StreamBuilder for real-time updates
+/// - Assumes user fields: firstName, lastName, email, phone, role
+/// - Role values: "user" or "admin"
 class AdminUsersPage extends StatefulWidget {
+
+  /// Creates an [AdminUsersPage].
   const AdminUsersPage({super.key});
 
   @override
   State<AdminUsersPage> createState() => _AdminUsersPageState();
 }
 
+/// State class for [AdminUsersPage].
+///
+/// Manages search input, Firestore interactions,
+/// and UI updates.
 class _AdminUsersPageState extends State<AdminUsersPage> {
+
+  /// Stores the current search query entered by the admin.
+  ///
+  /// Used to filter users by name or email.
   String searchText = "";
 
+  /// Promotes a user to admin role.
+  ///
+  /// Updates the user's document in Firestore by setting
+  /// the role field to "admin".
   Future<void> makeAdmin(String uid) async {
     await FirebaseFirestore.instance
         .collection('users')
@@ -42,6 +56,9 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         .update({"role": "admin"});
   }
 
+  /// Removes admin privileges from a user.
+  ///
+  /// Updates the user's role back to "user".
   Future<void> removeAdmin(String uid) async {
     await FirebaseFirestore.instance
         .collection('users')
@@ -51,8 +68,12 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Builds the main user management interface.
     return Scaffold(
       backgroundColor: Colors.white,
+
+      /// App bar with page title.
       appBar: AppBar(
         title: const Text(
           "Manage Users",
@@ -62,9 +83,11 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
         ),
         centerTitle: true,
       ),
+
       body: Column(
         children: [
-          // search
+
+          /// Search field for filtering users by name or email.
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
@@ -75,6 +98,8 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+
+              /// Updates search text and refreshes the UI.
               onChanged: (value) {
                 setState(() {
                   searchText = value.toLowerCase();
@@ -83,17 +108,23 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             ),
           ),
 
-          // user list
+          /// Expanded section displaying the user list.
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
+
+              /// Listens to all users in Firestore in real time.
               stream: FirebaseFirestore.instance
                   .collection('users')
                   .snapshots(),
+
               builder: (context, snapshot) {
+
+                /// Shows loading indicator while data is fetched.
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
+                /// Filters users based on search query.
                 final users = snapshot.data!.docs.where((doc) {
                   final data =
                     doc.data() as Map<String, dynamic>;
@@ -104,14 +135,20 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                   return name.contains(searchText) || email.contains(searchText);
                 }).toList();
 
+                /// Builds a scrollable list of user cards.
                 return ListView.builder(
                   padding: const EdgeInsets.all(6),
                   itemCount: users.length,
+
                   itemBuilder: (context, index) {
+
                     final data = users[index].data() as Map<String, dynamic>;
                     final uid = users[index].id;
+
                     return Card(
                       elevation: 2,
+
+                      /// Displays user information and actions.
                       child: ListTile(
                         contentPadding:
                           const EdgeInsets.symmetric(
@@ -119,6 +156,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                             vertical: 10,
                           ),
 
+                        /// User full name.
                         title: Text(
                           "${data['firstName']} ${data['lastName']}",
                           style: const TextStyle(
@@ -126,14 +164,18 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                           ),
                         ),
 
+                        /// Additional user details.
                         subtitle: Text(
                           "Email : ${data['email']}\n"
                           "Phone : ${data['phone']}\n"
                           "Role : ${data['role'] ?? 'user'}",
                         ),
 
+                        /// Action menu for role management.
                         trailing:
                           PopupMenuButton<String>(
+
+                          /// Handles selected menu action.
                           onSelected: (value) {
                             if (value == "admin") {
                               makeAdmin(uid);
@@ -144,6 +186,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
                             }
                           },
 
+                          /// Menu options for admin actions.
                           itemBuilder: (context) => const [
                             PopupMenuItem(
                               value: "admin",

@@ -2,23 +2,6 @@
 * File: psychiatrist_chat_page.dart
 * Description: Chat interface for users to communicate with a psychiatrist, including sending and receiving messages and quick access to mental health self-assessments.
 *
-* Note:
-* - Uses Firestore for real-time messaging under chats/{userId}/messages.
-* - Assumes chat document stores metadata such as lastMessage, lastTimestamp, and unreadForAdmin.
-* - Relies on FirebaseAuth to identify the current user.
-* - Navigates to self-assessment or result page based on data existence.
-*
-* Lifecycle:
-* - build(): Subscribes to message stream via StreamBuilder and rebuilds on updates.
-* - _sendMessage(): Adds a new message and updates chat metadata.
-* - _openAssessment(): Checks assessment data and navigates accordingly.
-*
-* Responsibilities:
-* - Display real-time chat messages between user and psychiatrist.
-* - Differentiate UI between user and admin messages.
-* - Send messages and update chat state.
-* - Provide access to self-assessment and results.
-*
 * Authors: 
 * - Atitaya Khangtan 650510650
 */
@@ -29,6 +12,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
 
+/// Chat page that allows users to communicate with a psychiatrist.
+///
+/// Responsibilities:
+/// - Display real-time chat messages between user and psychiatrist
+/// - Differentiate UI between user and admin messages
+/// - Handle sending messages and updating chat state
+/// - Provide access to self-assessment and results
+///
+/// Note:
+/// - Uses Firestore for real-time messaging
+/// - Requires authenticated user
 class PsychiatristChatPage extends StatefulWidget {
   const PsychiatristChatPage({super.key});
 
@@ -37,13 +31,19 @@ class PsychiatristChatPage extends StatefulWidget {
 }
 
 class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
+
+  /// Controller for the message input field
   final TextEditingController _messageController = TextEditingController();
+
+  /// Currently logged-in Firebase user
   final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      /// App bar with title and self-assessment button
       appBar: AppBar(
         title: const Text(
           'Psychiatrist Chat',
@@ -52,6 +52,8 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
           ),
         ),
         centerTitle: true,
+
+        /// Action button to open self-assessment
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_note),
@@ -62,9 +64,13 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
           ),
         ],
       ),
+
       body: Column(
         children: [
-          // Chat Area
+
+          // ================= CHAT AREA =================
+
+          /// Displays chat messages in real time using StreamBuilder
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -74,18 +80,23 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
+
+                /// Show loading indicator while waiting for messages
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 final messages = snapshot.data!.docs;
 
+                /// Build list of chat bubbles
                 return ListView.builder(
                   reverse: true,
                   padding: const EdgeInsets.all(12),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final data = messages[index];
+
+                    /// Check if message was sent by current user
                     final isMe = data['senderId'] == user!.uid;
 
                     return _chatBubble(
@@ -98,7 +109,9 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
             ),
           ),
 
-          // Input Area
+          // ================= INPUT AREA =================
+
+          /// Message input field and send button
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
@@ -112,6 +125,8 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
             ),
             child: Row(
               children: [
+
+                /// Text input for typing messages
                 Expanded(
                   child: TextField(
                     controller: _messageController,
@@ -126,7 +141,10 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 8),
+
+                /// Send button
                 CircleAvatar(
                   backgroundColor: Colors.teal,
                   child: IconButton(
@@ -145,6 +163,8 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
     );
   }
 
+  /// Opens the self-assessment page or result page
+  /// depending on whether the user already has results saved
   Future<void> _openAssessment(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -156,6 +176,7 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
 
     if (!mounted) return;
 
+    /// If assessment result exists → open result page
     if (doc.exists) {
       Navigator.push(
         context,
@@ -163,6 +184,8 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
           builder: (_) => const PsychiatristSelfAssessmentResultPage(),
         ),
       );
+
+    /// Otherwise → open assessment questionnaire page
     } else {
       Navigator.push(
         context,
@@ -173,8 +196,10 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
     }
   }
 
-  // Send Message
+  /// Sends a new chat message to Firestore
   void _sendMessage() async {
+
+    /// Prevent sending empty messages
     if (_messageController.text.trim().isEmpty) return;
 
     final message = _messageController.text.trim();
@@ -182,14 +207,14 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
     final chatRef =
         FirebaseFirestore.instance.collection('chats').doc(user!.uid);
 
-    // add message
+    // -------- Add message document --------
     await chatRef.collection('messages').add({
       'senderId': user!.uid,
       'message': message,
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    // update chat info
+    // -------- Update chat metadata --------
     await chatRef.set({
       'userId': user!.uid,
       'lastMessage': message,
@@ -197,10 +222,13 @@ class _PsychiatristChatPageState extends State<PsychiatristChatPage> {
       'unreadForAdmin': true,
     }, SetOptions(merge: true));
 
+    /// Clear input field after sending
     _messageController.clear();
   }
 
-  // Chat Bubble 
+  /// Builds a chat bubble UI
+  /// - Aligns right if sent by current user
+  /// - Aligns left if received message
   Widget _chatBubble({required String message, required bool isMe}) {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,

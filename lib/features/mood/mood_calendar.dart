@@ -2,14 +2,6 @@
 * File: mood_calendar.dart
 * Description: Interactive mood calendar page that displays a monthly overview of daily mood entries, allows navigation between months and years, and provides quick access to add or view detailed mood diary entries for each day.
 *
-* Responsibilities:
-* - แสดงภาพรวมรายเดือนของอารมณ์ผู้ใช้ในแต่ละวัน
-* - เลื่อนดูเดือนต่าง ๆ และเลือกปี
-* - แสดงไอคอนอารมณ์ของแต่ละวัน และเน้นวันที่ปัจจุบัน
-* - แตะวันเพื่อดู Mood Diary รายวัน (ถ้ามีข้อมูล)
-* - ปุ่มเพิ่ม Mood สำหรับวันที่ปัจจุบัน
-* - ใช้ StreamBuilder ดึงข้อมูล Mood จาก Firestore แบบ real-time
-*
 * Authors: 
 * - Anajak Chuamuangphan 650510692
 * - Atitaya Khangtan 650510650
@@ -24,6 +16,15 @@ import 'package:mindcare/core/constants/mood_images.dart';
 import 'package:mindcare/features/mood/mood_add.dart';
 import 'package:mindcare/features/mood/mood_diary.dart';
 
+/// Calendar page for viewing monthly mood history.
+///
+/// Responsibilities:
+/// - Display monthly overview of user moods
+/// - Allow navigation between months and years
+/// - Show mood icons for each day and highlight current date
+/// - Allow users to tap a day to view mood diary
+/// - Provide option to add mood for current date
+/// - Retrieve mood data from Firestore in real time
 class MoodCalendarPage extends StatefulWidget {
   const MoodCalendarPage({super.key});
 
@@ -31,24 +32,39 @@ class MoodCalendarPage extends StatefulWidget {
   State<MoodCalendarPage> createState() => _MoodCalendarPageState();
 }
 
+/// State that manages month navigation,
+/// selected year, and calendar display.
 class _MoodCalendarPageState extends State<MoodCalendarPage> {
+
+  /// Controller for vertical month scrolling
   late PageController _pageController;
+
+  /// Currently displayed month
   late DateTime currentMonth;
+
+  /// Selected year from dropdown
   int selectedYear = DateTime.now().year;
 
   @override
   void initState() {
     super.initState();
+
+    /// Initialize to current month
     currentMonth = DateTime.now();
+
+    /// Set initial page to current month index
     _pageController = PageController(
       initialPage: DateTime.now().month - 1,
     );
   }
 
+  /// Returns DateTime for a given month index (0–11)
   DateTime getMonth(int index) {
     return DateTime(selectedYear, index + 1);
   }
 
+  /// Determines whether user can add mood
+  /// (only allowed for current month)
   bool canAddMood() {
     final now = DateTime.now();
     return currentMonth.year == now.year && currentMonth.month == now.month;
@@ -56,8 +72,11 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Get currently logged-in user
     final user = FirebaseAuth.instance.currentUser;
 
+    /// If not logged in, show message
     if (user == null) {
       return const Scaffold(
         body: Center(child: Text("กรุณาเข้าสู่ระบบ")),
@@ -67,20 +86,28 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
     return AppLayout(
       child: Stack(
         children: [
+
+          /// Vertical page view for months
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
             itemCount: 12,
+
+            /// Update current month when page changes
             onPageChanged: (index) {
               setState(() {
                 currentMonth = getMonth(index);
               });
             },
+
+            /// Build each month's calendar
             itemBuilder: (context, index) {
               final monthDate = getMonth(index);
               return _buildMonthView(user.uid, monthDate);
             },
           ),
+
+          /// Floating add button for adding today's mood
           Positioned(
             bottom: 20,
             left: 0,
@@ -89,9 +116,12 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
               child: FloatingActionButton(
                 onPressed: canAddMood()
                     ? () async {
+
+                        /// Use today's date
                         final now = DateTime.now();
                         final today = DateTime(now.year, now.month, now.day);
 
+                        /// Navigate to mood add page
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -100,6 +130,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                           ),
                         );
 
+                        /// Refresh calendar after returning
                         setState(() {});
                       }
                     : null,
@@ -112,11 +143,18 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
     );
   }
 
+  /// Builds the calendar grid for a specific month.
+  ///
+  /// Retrieves mood data from Firestore and maps
+  /// each day to its corresponding mood icon.
   Widget _buildMonthView(String uid, DateTime monthDate) {
+
     final firstDay = DateTime(monthDate.year, monthDate.month, 1);
     final nextMonth = DateTime(monthDate.year, monthDate.month + 1, 1);
 
     return StreamBuilder<QuerySnapshot>(
+
+      /// Stream of mood documents for that month
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -125,15 +163,19 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
               isGreaterThanOrEqualTo: _dateKey(firstDay))
           .where(FieldPath.documentId, isLessThan: _dateKey(nextMonth))
           .snapshots(),
+
       builder: (context, snapshot) {
+
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
 
         final docs = snapshot.data!.docs;
 
+        /// Map storing mood data indexed by day
         Map<int, Map<String, dynamic>> moodMap = {};
 
+        /// Convert Firestore documents into day-based map
         for (var doc in docs) {
           try {
             final date = DateTime.parse(doc.id);
@@ -141,17 +183,21 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
           } catch (_) {}
         }
 
+        /// Number of days in the month
         int daysInMonth =
             DateTime(monthDate.year, monthDate.month + 1, 0).day;
 
+        /// Starting weekday of the month
         int startWeekday = firstDay.weekday;
 
         List<int?> days = [];
 
+        /// Add empty cells before first day
         for (int i = 1; i < startWeekday; i++) {
           days.add(null);
         }
 
+        /// Add actual days
         for (int day = 1; day <= daysInMonth; day++) {
           days.add(day);
         }
@@ -159,10 +205,13 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+
             child: Column(
               children: [
+
                 const SizedBox(height: 16),
 
+                /// Month + Year header with year selector
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -173,7 +222,10 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+
                     const SizedBox(width: 8),
+
+                    /// Dropdown to select year
                     PopupMenuButton<int>(
                       onSelected: (year) {
                         setState(() {
@@ -210,6 +262,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
 
                 const SizedBox(height: 24),
 
+                /// Weekday labels
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -225,6 +278,7 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
 
                 const SizedBox(height: 12),
 
+                /// Calendar grid
                 Expanded(
                   child: GridView.builder(
                     itemCount: days.length,
@@ -233,20 +287,25 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                       crossAxisCount: 7,
                       childAspectRatio: 0.65,
                     ),
+
                     itemBuilder: (context, index) {
+
                       final day = days[index];
 
+                      /// Empty cell
                       if (day == null) {
                         return const SizedBox();
                       }
 
                       final now = DateTime.now();
 
+                      /// Check if this day is today
                       final isToday =
                           day == now.day &&
                           monthDate.month == now.month &&
                           monthDate.year == now.year;
 
+                      /// Retrieve mood data for the day
                       final moodData = moodMap[day];
                       final mood = moodData?["averageMood"];
                       final imagePath = MoodImages.map[mood];
@@ -255,6 +314,8 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                           DateTime(monthDate.year, monthDate.month, day);
 
                       return GestureDetector(
+
+                        /// Open diary only if mood exists
                         onTap: moodData == null
                             ? null
                             : () {
@@ -266,17 +327,23 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                   ),
                                 );
                               },
+
                         child: Container(
                           margin: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(12),
+
+                            /// Highlight today
                             border: isToday
                                 ? Border.all(color: Colors.red, width: 2)
                                 : null,
                           ),
+
                           child: Stack(
                             children: [
+
+                              /// Mood icon if exists
                              if (imagePath != null)
                               LayoutBuilder(
                                 builder: (context, constraints) {
@@ -295,6 +362,8 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
                                   );
                                 },
                               ),
+
+                              /// Day number label
                               Positioned(
                                 top: 4,
                                 right: 6,
@@ -321,12 +390,14 @@ class _MoodCalendarPageState extends State<MoodCalendarPage> {
     );
   }
 
+  /// Converts DateTime to Firestore document ID format (yyyy-MM-dd)
   String _dateKey(DateTime date) {
     return "${date.year.toString().padLeft(4, '0')}-"
         "${date.month.toString().padLeft(2, '0')}-"
         "${date.day.toString().padLeft(2, '0')}";
   }
 
+  /// Returns month name from number
   String _monthName(int month) {
     const months = [
       '',

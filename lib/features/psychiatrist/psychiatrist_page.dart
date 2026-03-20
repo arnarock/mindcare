@@ -2,27 +2,6 @@
 * File: psychiatrist_page.dart
 * Description: Main psychiatrist dashboard page that welcomes the user and provides access to chat with a psychiatrist and view or take mental health self-assessments.
 *
-* Note:
-* - Uses FirebaseAuth to identify the current user.
-* - Uses Firestore stream to fetch user profile data in real-time.
-* - Navigates to self-assessment or result page based on existing data.
-* - Wrapped with AppLayout for consistent UI structure.
-*
-* Lifecycle:
-* - build(): Checks authentication state and subscribes to user data via StreamBuilder.
-* - Stream updates trigger UI rebuild when user data changes.
-* - _optionCard(): Builds reusable UI components for navigation options.
-*
-* Responsibilities:
-* - Display personalized welcome message.
-* - Provide navigation to chat and self-assessment features.
-* - Handle loading, empty, and unauthenticated states.
-* - Maintain consistent layout using AppLayout.
-*
-* Limitations:
-* - Re-fetches assessment data on each tap, which may increase Firestore reads.
-* - No caching for user profile data.
-*
 * Authors: 
 * - Atitaya Khangtan 650510650
 */
@@ -35,25 +14,53 @@ import 'package:mindcare/features/psychiatrist/psychiatrist_chat_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
 
+/// Main dashboard screen for psychiatric features.
+///
+/// Responsibilities:
+/// Display personalized welcome message.
+/// - Provide navigation to chat and self-assessment features.
+/// - Handle loading, empty, and unauthenticated states.
+/// - Maintain consistent layout using AppLayout.
+/// 
+/// Note:
+/// - Uses Firestore for real-time messaging under chats/{userId}/messages.
+/// - Assumes chat document stores metadata such as lastMessage, lastTimestamp, and unreadForAdmin.
+/// - Relies on FirebaseAuth to identify the current user.
+/// - Navigates to self-assessment or result page based on data existence.
+/// 
+/// Lifecycle:
+/// - build(): Subscribes to message stream via StreamBuilder and rebuilds on updates.
+/// - _sendMessage(): Adds a new message and updates chat metadata.
+/// - _openAssessment(): Checks assessment data and navigates accordingly.
+/// 
+/// Limitations:
+/// - Re-fetches assessment data on each tap, which may increase Firestore reads.
+/// - No caching for user profile data.
 class PsychiatristPage extends StatelessWidget {
   const PsychiatristPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    /// Get currently logged-in user
     final user = FirebaseAuth.instance.currentUser;
 
+    /// If no user is logged in → show login required message
     if (user == null) {
       return const Scaffold(
         body: Center(child: Text("กรุณาเข้าสู่ระบบ")),
       );
     }
 
+    /// Listen to user's profile data from Firestore
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .snapshots(),
       builder: (context, snapshot) {
+
+        /// Show loading indicator while fetching data
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
@@ -62,6 +69,7 @@ class PsychiatristPage extends StatelessWidget {
           );
         }
 
+        /// If user data not found → show error message
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Scaffold(
             body: Center(
@@ -70,6 +78,7 @@ class PsychiatristPage extends StatelessWidget {
           );
         }
 
+        /// Extract user information
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final firstName = data['firstName'] ?? '';
 
@@ -81,7 +90,9 @@ class PsychiatristPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                // Welcome Text
+                // ================= WELCOME TEXT =================
+
+                /// Display user's name
                 Text(
                   "Welcome, $firstName",
                   style: const TextStyle(
@@ -92,7 +103,7 @@ class PsychiatristPage extends StatelessWidget {
 
                 const SizedBox(height: 6),
 
-                // Welcome sub Text
+                /// Subtitle encouraging mental self-care
                 const Text(
                   "Take care of yourself with\nPsychological Counselling",
                   style: TextStyle(
@@ -103,7 +114,9 @@ class PsychiatristPage extends StatelessWidget {
 
                 const SizedBox(height: 30),
 
-                // Inbox Card
+                // ================= CHAT OPTION =================
+
+                /// Card to open psychiatrist chat page
                 _optionCard(
                   context,
                   icon: Icons.chat_outlined,
@@ -121,21 +134,27 @@ class PsychiatristPage extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Self Assessment Card
+                // ================= SELF-ASSESSMENT OPTION =================
+
+                /// Card to open mental health self-assessment
                 _optionCard(
                   context,
                   icon: Icons.edit_note_outlined,
                   title: "Self Assessments",
                   subtitle: "Mental health evaluation",
                   onTap: () async  {
+
+                    /// Check current user again
                     final user = FirebaseAuth.instance.currentUser;
                       if (user == null) return;
 
+                    /// Check if assessment result already exists
                     final doc = await FirebaseFirestore.instance
                         .collection("self_assessment_results")
                         .doc(user.uid)
                         .get();
 
+                    /// If result exists → open result page
                     if (doc.exists) {
                       Navigator.push(
                         context,
@@ -143,6 +162,8 @@ class PsychiatristPage extends StatelessWidget {
                           builder: (_) => const PsychiatristSelfAssessmentResultPage(),
                         ),
                       );
+
+                    /// Otherwise → open questionnaire page
                     } else {
                       Navigator.push(
                         context,
@@ -161,6 +182,8 @@ class PsychiatristPage extends StatelessWidget {
     );
   }
 
+  /// Reusable option card widget
+  /// Used for navigation to different psychiatric features
   Widget _optionCard(
     BuildContext context, {
     required IconData icon,
@@ -169,13 +192,20 @@ class PsychiatristPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return InkWell(
+
+      /// Rounded ripple effect
       borderRadius: BorderRadius.circular(18),
+
+      /// Action when card is tapped
       onTap: onTap,
+
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: const Color(0xFFF3F9FF),
           borderRadius: BorderRadius.circular(18),
+
+          /// Soft shadow for elevation effect
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
@@ -184,8 +214,11 @@ class PsychiatristPage extends StatelessWidget {
             ),
           ],
         ),
+
         child: Row(
           children: [
+
+            /// Icon inside circular background
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -197,6 +230,7 @@ class PsychiatristPage extends StatelessWidget {
 
             const SizedBox(width: 16),
 
+            /// Title and subtitle text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,6 +256,7 @@ class PsychiatristPage extends StatelessWidget {
               ),
             ),
 
+            /// Arrow icon indicating navigation
             const Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),

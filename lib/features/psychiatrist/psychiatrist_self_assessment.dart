@@ -2,26 +2,6 @@
 * File: psychiatrist_self_assessment.dart
 * Description: Self-assessment questionnaire screen for mental health evaluation. Displays multiple questions with step navigation, calculates scores with reverse scoring logic, and stores results in Firebase Firestore.
 *
-* Notes:
-* - แบบประเมินแบ่งเป็นหลายหน้า (step) เพื่อไม่ให้ UI ยาวเกินไป
-* - มีคำถามแบบ reverse score (กลับคะแนน) เพื่อความแม่นยำทางจิตวิทยา
-* - รองรับ 2 โหมด: ทำแบบประเมิน (isViewOnly = false) และดูผลย้อนหลัง (isViewOnly = true)
-* - ตรวจสอบว่าผู้ใช้ตอบครบทุกข้อก่อนไปหน้าถัดไป
-*
-* Lifecycle:
-* - initState():
-*   • กำหนดค่าเริ่มต้นของ answers และ uid
-*   • โหลดข้อมูลเดิม (viewOnly) หรือ reset แบบประเมินใหม่
-*
-* Responsibilities:
-* - แสดงคำถามแบบแบ่งหน้า (pagination)
-* - รับคำตอบผู้ใช้ (scale 1–4)
-* - คำนวณคะแนนรวมโดยรองรับ reverse scoring
-* - แปลผลคะแนน (Good / Fair / Poor)
-* - ตรวจสอบ validation (ตอบครบทุกข้อ)
-* - บันทึกผลลง Firebase Firestore
-* - รองรับการดูผลย้อนหลัง (read-only mode)
-*
 * Authors: 
 * - Atitaya Khangtan 650510650
 */
@@ -31,8 +11,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:mindcare/features/psychiatrist/psychiatrist_self_assessment _result.dart';
 
+/// Self-assessment questionnaire page (TMHI-55)
+/// Supports two modes:
+/// - Normal mode (take assessment)
+/// - View only mode (read previous answers)
+/// 
+/// * Responsibilities:
+/// - แสดงคำถามแบบแบ่งหน้า (pagination)
+/// - รับคำตอบผู้ใช้ (scale 1–4)
+/// - คำนวณคะแนนรวมโดยรองรับ reverse scoring
+/// - แปลผลคะแนน (Good / Fair / Poor)
+/// - ตรวจสอบ validation (ตอบครบทุกข้อ)
+/// - บันทึกผลลง Firebase Firestore
+/// - รองรับการดูผลย้อนหลัง (read-only mode)
+
+/// Notes:
+/// - แบบประเมินแบ่งเป็นหลายหน้า (step) เพื่อไม่ให้ UI ยาวเกินไป
+/// - มีคำถามแบบ reverse score (กลับคะแนน) เพื่อความแม่นยำทางจิตวิทยา
+/// - รองรับ 2 โหมด: ทำแบบประเมิน (isViewOnly = false) และดูผลย้อนหลัง (isViewOnly = true)
+/// - ตรวจสอบว่าผู้ใช้ตอบครบทุกข้อก่อนไปหน้าถัดไป
+
+/// Lifecycle:
+/// - initState():
+///   • กำหนดค่าเริ่มต้นของ answers และ uid
+///   • โหลดข้อมูลเดิม (viewOnly) หรือ reset แบบประเมินใหม่
 class PsychiatristSelfAssessmentPage extends StatefulWidget {
+  /// true = view only (cannot change answers)
   final bool isViewOnly;
+  /// Used when admin views another user's result
   final String? userId;
 
   const PsychiatristSelfAssessmentPage({
@@ -44,7 +50,7 @@ class PsychiatristSelfAssessmentPage extends StatefulWidget {
   @override
   State<PsychiatristSelfAssessmentPage> createState() => _PsychiatristSelfAssessmentPageState();
 }
-
+/// All questionnaire statements (55 items)
 class _PsychiatristSelfAssessmentPageState extends State<PsychiatristSelfAssessmentPage> {
   final List<String> questions = [
     "ท่านรู้สึกพึงพอใจในชีวิต",

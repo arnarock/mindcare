@@ -2,13 +2,6 @@
 * File: profile_screen.dart
 * Description: User profile screen displaying personal information (name, email, phone), email verification status, and options to refresh status or log out.
 *
-* Responsibilities:
-* - แสดงข้อมูลผู้ใช้: ชื่อ, เบอร์โทร, อีเมล
-* - แสดงสถานะการยืนยันอีเมล และปุ่มส่งอีเมลยืนยันใหม่
-* - ปุ่ม Refresh Status เพื่อโหลดข้อมูลผู้ใช้ใหม่ 
-* - ปุ่ม Log Out ออกจากระบบและกลับไปหน้า Login
-* - ใช้ StreamBuilder ดึงข้อมูลผู้ใช้จาก Firestore แบบ real-time
-*
 * Authors: 
 * - Anajak Chuamuangphan 650510692
 * - Atitaya Khangtan 650510650
@@ -21,6 +14,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mindcare/core/layout/app_layout.dart';
 import 'package:mindcare/features/auth/login_screen.dart'; 
 
+/// Profile screen that displays user information.
+///
+/// Responsibilities:
+/// - Display user profile data (name, email, phone)
+/// - Show email verification status and allow resending verification email
+/// - Provide option to refresh user data
+/// - Handle user logout and navigation to login screen
+/// - Retrieve user data from Firestore in real time
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -29,11 +30,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
+  /// Reloads the current user from Firebase Auth
+  /// Used to update emailVerified status after verification
   Future<void> refreshUser() async {
     await FirebaseAuth.instance.currentUser?.reload();
     setState(() {});
   }
 
+  /// Sends verification email again to the current user
   Future<void> resendVerification() async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -42,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (!mounted) return;
 
+      /// Show confirmation message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("ส่งอีเมลยืนยันอีกครั้งแล้ว 📩"),
@@ -52,8 +58,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    /// Get currently logged-in user
     final user = FirebaseAuth.instance.currentUser;
 
+    /// Listen to user document changes from Firestore in real time
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
@@ -61,18 +70,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .snapshots(),
       builder: (context, snapshot) {
 
+        /// Show loading indicator while waiting for data
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
+        /// If no user data is found
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Scaffold(
             body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
           );
         }
 
+        /// Extract user data from Firestore
         final data = snapshot.data!.data() as Map<String, dynamic>;
         final firstName = data['firstName'] ?? '';
         final lastName = data['lastName'] ?? '';
@@ -85,7 +97,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
+
                 const SizedBox(height: 10),
+
+                /// Profile avatar with shadow decoration
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -110,6 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 15),
 
+                /// Display full name
                 Text(
                   fullName,
                   style: const TextStyle(
@@ -118,6 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
 
+                /// Display email from Firebase Auth
                 Text(
                   user?.email ?? "-",
                   style: const TextStyle(
@@ -128,6 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
+                /// Card containing user information details
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -138,6 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     children: [
 
+                      /// Full name info row
                       _infoCard(
                         icon: Icons.person_pin_rounded,
                         title: "Full Name",
@@ -146,6 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const Divider(height: 1, indent: 16, endIndent: 16),
 
+                      /// Phone number info row
                       _infoCard(
                         icon: Icons.call,
                         title: "Phone Number",
@@ -154,6 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const Divider(height: 1, indent: 16, endIndent: 16),
 
+                      /// Email info row
                       _infoCard(
                         icon: Icons.email,
                         title: "Email",
@@ -165,6 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
+                /// Show warning if email is not verified
                 if (user != null && !user.emailVerified)
                   _warningCard()
                 else
@@ -172,6 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 20),
 
+                /// Button to refresh verification status
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -197,6 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 20),
 
                 // ---------------- Logout ----------------
+                /// Button to log out from the application
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -211,10 +235,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     onPressed: () async {
 
+                      /// Sign out from Firebase Auth
                       await FirebaseAuth.instance.signOut();
 
                       if (!mounted) return;
 
+                      /// Navigate to login screen and clear navigation stack
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -240,6 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Reusable widget for displaying one info row
   Widget _infoCard({
     required IconData icon,
     required String title,
@@ -255,9 +282,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Info label
                 Text(title,
                     style: const TextStyle(fontSize: 13, color: Colors.grey)),
                 const SizedBox(height: 4),
+
+                /// Info value
                 Text(value,
                     style: const TextStyle(
                         fontSize: 15,
@@ -270,6 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Warning card shown when email is not verified
   Widget _warningCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -287,6 +318,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 10),
+
+          /// Button to resend verification email
           ElevatedButton(
             onPressed: resendVerification,
             child: const Text("ส่งอีเมลยืนยันอีกครั้ง"),
@@ -296,6 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Success card shown when email is verified
   Widget _successCard() {
     return Container(
       padding: const EdgeInsets.all(16),

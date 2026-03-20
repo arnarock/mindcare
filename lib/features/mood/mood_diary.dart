@@ -2,25 +2,6 @@
 * File: mood_diary.dart
 * Description: Mood diary page for recording, viewing, editing, and deleting daily mood entries, with automatic calculation of average mood and navigation between dates.
 *
-* Note:
-* - Uses Firestore to store daily mood entries under users/{uid}/moods/{date}.
-* - Each document contains a list of entries, averageMood, and averageScore.
-* - Relies on MoodCalculator for computing average mood and score.
-* - Uses MoodImages for mapping mood labels to UI assets.
-*
-* Lifecycle:
-* - initState(): Initializes the selected date.
-* - build(): Subscribes to mood data via StreamBuilder and rebuilds on updates.
-* - setState(): Updates UI when navigating dates or picking a new date.
-* - deleteMood(): Updates Firestore and recalculates average after deletion.
-*
-* Responsibilities:
-* - Display daily mood summary including average mood and total entries.
-* - List all mood entries with time, note, and actions.
-* - Allow navigation between dates and date selection.
-* - Support editing and deleting mood entries.
-* - Recalculate and persist updated mood data.
-*
 * Authors: 
 * - Atitaya Khangtan 650510650
 */
@@ -33,6 +14,14 @@ import 'package:mindcare/core/constants/mood_images.dart';
 import 'package:mindcare/core/constants/mood_calculator.dart';
 import 'package:mindcare/features/mood/mood_add.dart';
 
+/// Page for viewing and managing mood diary entries for a specific date.
+///
+/// Responsibilities:
+/// - Display daily mood summary including average mood and total entries
+/// - List all mood entries with time, note, and actions
+/// - Allow navigation between dates and date selection
+/// - Support editing and deleting mood entries
+/// - Recalculate and persist updated mood data
 class MoodDiaryPage extends StatefulWidget {
   final DateTime selectedDate;
 
@@ -45,9 +34,14 @@ class MoodDiaryPage extends StatefulWidget {
   State<MoodDiaryPage> createState() => _MoodDiaryPageState();
 }
 
+/// State that handles current date navigation,
+/// data retrieval, and entry management.
 class _MoodDiaryPageState extends State<MoodDiaryPage> {
+
+  /// Currently displayed date in the diary
   late DateTime currentDate;
 
+  /// Checks whether a given date is today
   bool isToday(DateTime date) {
     final today = DateTime.now();
     return date.year == today.year &&
@@ -58,16 +52,25 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
   @override
   void initState() {
     super.initState();
+
+    /// Initialize with selected date from calendar
     currentDate = widget.selectedDate;
   }
 
   @override
   Widget build(BuildContext context) {
+
+    /// Get logged-in user
     final user = FirebaseAuth.instance.currentUser;
+
+    /// Format display date
     final displayDate =
       "${currentDate.day} / ${currentDate.month} / ${currentDate.year}";
+
+    /// Firestore document key for this date
     final dateKey = DateFormat("yyyy-MM-dd").format(currentDate);
 
+    /// If not logged in
     if (user == null) {
       return const Scaffold(
         body: Center(child: Text("Not logged in")),
@@ -84,6 +87,8 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
         ),
         centerTitle: true,
       ),
+
+      /// Listen to real-time mood data for the selected date
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
@@ -91,16 +96,22 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
             .collection('moods')
             .doc(dateKey)
             .snapshots(),
+
         builder: (context, snapshot) {
+
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          
+
+          /// List of mood entries for that day
           List entries = [];
+
+          /// Average mood label for that day
           String? avgMood;
 
+          /// If document exists, extract data
           if (snapshot.data!.exists) {
             final data = snapshot.data!.data() as Map<String, dynamic>;
             entries = List.from(data["entries"]);
@@ -110,20 +121,27 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
+
+              /// Summary card showing average mood and date navigation
               Card(
                 color: Colors.teal.shade50,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
+
+                      /// Date navigation row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+
+                          /// Previous day button
                           IconButton(
                             icon: const Icon(Icons.chevron_left),
                             onPressed: previousDay,
                           ),
 
+                          /// Tap date to open date picker
                           InkWell(
                             onTap: pickDate,
                             borderRadius: BorderRadius.circular(8),
@@ -140,6 +158,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
                             ),
                           ),
 
+                          /// Next day button (hidden if today)
                           isToday(currentDate)
                             ? const SizedBox(width: 48)
                             : IconButton(
@@ -151,6 +170,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                       const SizedBox(height: 16),
 
+                      /// Average mood icon
                       Image.asset(
                         entries.isEmpty
                           ? 'assets/images/moods/mood_none.png'
@@ -161,6 +181,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                       const SizedBox(height: 8),
 
+                      /// Average mood text or no-data message
                       Text(
                         entries.isEmpty 
                           ? isToday(currentDate) 
@@ -175,6 +196,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                       const SizedBox(height: 6),
                       
+                      /// Number of entries recorded
                       Text(
                         isToday(currentDate) 
                           ? "${entries.length} Mood Recorded Today"
@@ -191,6 +213,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
               const SizedBox(height: 24),
 
+              /// Section title if entries exist
               if (!entries.isEmpty) 
                 const Text(
                   "ALL Mood Today",
@@ -202,10 +225,13 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                 const SizedBox(height: 12),
               
+                /// List of all mood entries
                 ...entries.map((entry) {
+
                   final mood = entry["mood"] ?? "";
                   final note = entry["note"] ?? "";
 
+                  /// Format time from timestamp
                   String timeText = "";
                   if (entry["createdAt"] != null) {
                     final Timestamp ts = entry["createdAt"];
@@ -217,9 +243,12 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
                     margin: const EdgeInsets.only(bottom: 16),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
+
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                          /// Mood icon
                           Image.asset(
                             MoodImages.map[mood] ?? "",
                             height: 40,
@@ -227,10 +256,13 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
                           const SizedBox(width: 12),
 
+                          /// Mood details
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+
+                                /// Mood name + time
                                 Row(
                                   children: [
                                     Text(
@@ -253,6 +285,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
                                   ],
                                 ),
 
+                                /// Optional note
                                 if (note.isNotEmpty) ...[
                                   const SizedBox(height: 8),
                                   Text(
@@ -264,6 +297,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
                             ),
                           ),
 
+                          /// Edit & Delete buttons
                           Row (
                             children: [
                               IconButton(
@@ -296,18 +330,21 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
     );
   }
 
+  /// Navigate to previous day
   void previousDay() {
     setState(() {
       currentDate = currentDate.subtract(const Duration(days: 1));
     });
   }
 
+  /// Navigate to next day
   void nextDay() {
     setState(() {
       currentDate = currentDate.add(const Duration(days: 1));
     });
   }
 
+  /// Open date picker to select another day
   Future<void> pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -323,6 +360,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
     }
   }
 
+  /// Open mood editor for selected entry
   Future<void> editMood(Map entry) async {
     await Navigator.push(
       context,
@@ -335,6 +373,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
     );
   }
 
+  /// Show confirmation dialog before deleting entry
   Future<void> showDeleteDialog(Map entry) async {
     final mood = entry["mood"] ?? "";
 
@@ -348,8 +387,10 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+
               const SizedBox(height: 12),
 
+              /// Mood icon preview
               Image.asset(
                 MoodImages.map[mood] ?? "",
                 height: 60,
@@ -388,6 +429,8 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
           actionsAlignment: MainAxisAlignment.spaceBetween,
 
           actions: [
+
+            /// Cancel button
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -402,6 +445,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
               ),
             ),
 
+            /// Confirm delete button
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
@@ -424,7 +468,10 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
     );
   }
 
+  /// Delete mood entry from Firestore
+  /// and recalculate daily average mood
   Future<void> deleteMood(Map entry) async {
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -442,8 +489,10 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
 
     List entries = List.from(snapshot.data()!["entries"]);
 
+    /// Remove entry by ID
     entries.removeWhere((e) => e["id"] == entry["id"]);
 
+    /// If no entries remain, reset averages
     if (entries.isEmpty) {
       await docRef.update({
         "entries": [],
@@ -453,6 +502,7 @@ class _MoodDiaryPageState extends State<MoodDiaryPage> {
       return;
     }
 
+    /// Recalculate average mood
     List<String> moods =
         entries.map((e) => e["mood"].toString()).toList();
 

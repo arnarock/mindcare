@@ -1,14 +1,9 @@
 /*
-* File: register_screen.dart
-* Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
-*
-* Responsibilities:
-* - แสดงคำทักทายแบบส่วนบุคคลตามช่วงเวลาของวัน
-* - แสดงข้อความสร้างแรงบันดาลใจและคำแนะนำด้านสุขภาพจิตแบบเลื่อนอัตโนมัติ
-* - แสดงสรุปอารมณ์เฉลี่ยประจำเดือนของผู้ใช้พร้อมข้อความให้กำลังใจ
-* - เป็นเมนูนำทางไปยังฟีเจอร์หลัก ได้แก่ Mood Tracking, Meditation และ Psychiatrist Chat
-* - จัดการโครงสร้างหน้าจอและการโต้ตอบของผู้ใช้ในหน้า Home
-*
+* File: home.dart
+* Description: Main dashboard screen displayed after user login. 
+*              This page provides an overview of the user's mental health activity,
+*              including mood statistics, meditation progress, and quick access
+*              to core features such as mood tracking, meditation, and psychiatrist support.
 * Authors:
 * - Nanticha Muangpun 650510623
 * - Atitaya Khangtan 650510650
@@ -27,13 +22,28 @@ import 'package:mindcare/features/mood/mood_calendar.dart';
 import 'package:mindcare/features/meditation/meditation_page.dart';
 import 'package:mindcare/features/psychiatrist/psychiatrist_page.dart';
 
+/// Main dashboard screen shown after user login.
+///
+/// Displays personalized greeting, inspiration content,
+/// mood statistics, meditation streak, and navigation
+/// to main features of the application.
+///
+/// Responsibilities:
+/// - Display personalized greeting based on time of day
+/// - Show auto-sliding inspirational and mental health tips
+/// - Display monthly average mood summary with feedback
+/// - Provide navigation to main features (Mood Tracking, Meditation, Psychiatrist Chat)
+/// - Manage layout structure and user interactions on the home screen
+///
+/// Requires authenticated user and Firestore profile data.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
+/// State class that manages UI logic, auto-sliding carousel,
+/// and asynchronous data display.
 class _HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
 
