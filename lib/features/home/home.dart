@@ -1,11 +1,17 @@
 /*
-* File: home.dart
-* Description: Home page of the MindCare app displaying personalized greetings, daily inspiration, mood summaries, meditation streaks, and quick access to mood tracking, meditation sessions, and psychiatrist chat features. It integrates real-time user data from Firebase and updates UI elements dynamically.
+* File: register_screen.dart
+* Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
+*
+* Responsibilities:
+* - แสดงคำทักทายแบบส่วนบุคคลตามช่วงเวลาของวัน
+* - แสดงข้อความสร้างแรงบันดาลใจและคำแนะนำด้านสุขภาพจิตแบบเลื่อนอัตโนมัติ
+* - แสดงสรุปอารมณ์เฉลี่ยประจำเดือนของผู้ใช้พร้อมข้อความให้กำลังใจ
+* - เป็นเมนูนำทางไปยังฟีเจอร์หลัก ได้แก่ Mood Tracking, Meditation และ Psychiatrist Chat
+* - จัดการโครงสร้างหน้าจอและการโต้ตอบของผู้ใช้ในหน้า Home
 *
 * Authors:
-* -  
-* - 
-* - 
+* - Nanticha Muangpun 650510623
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

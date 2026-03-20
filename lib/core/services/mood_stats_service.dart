@@ -8,7 +8,7 @@
 * - แสดงการแจ้งเตือนแบบ high-priority สำหรับ Mood Reminder
 * - ใช้งาน NotificationService ได้แบบ static ทั่วทั้งแอป
 *
-* Authors: <Anajak Chuamuangphan/ zoozoo>
+* Authors: <Anajak Chuamuangphan 650510692/ zoozoo>
 * Course: Mobile App Development
 */
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,11 +1,17 @@
 /*
-* File: mood_add.dart
-* Description: Page for adding or editing daily mood entries, allowing users to select a mood from a carousel, write notes, and save the entry to their mood diary with automatic calculation of average mood scores.
+* File: register_screen.dart
+* Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แสดงหน้าสำหรับเลือกอารมณ์ (Mood) ของผู้ใช้ในวันที่เลือก - Nanticha Muangpun 650510623 / zoozoo
+* - ให้ผู้ใช้เลือกอารมณ์ผ่านตัวเลือกแบบ Carousel พร้อมภาพอารมณ์ที่สอดคล้องกัน - Nanticha Muangpun 650510623 / zoozoo
+* - เพิ่มช่อง Mood diaryให้ผู้ใช้พิมพ์ข้อความบันทึกความรู้สึก (Mood Diary) -Nanticha Muangpun 650510623 / zoozoo
+* - อัปเดตค่าที่เลือกตามการโต้ตอบของผู้ใช้ - Nanticha Muangpun 650510623 / zoozoo
+*
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Nanticha Muangpun 650510623
+* Course: Mobile App Development
 */
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';

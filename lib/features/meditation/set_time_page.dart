@@ -1,11 +1,18 @@
 /*
-* File: set_time_page.dart
-* Description: Page that allows users to set a timer duration in minutes using a scrollable wheel picker and start the timer with a single tap.
+* File: register_screen.dart
+* Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แสดงหน้าสำหรับตั้งค่าระยะเวลาในการจับเวลา (หน่วยเป็นนาที)
+* - ให้ผู้ใช้เลือกเวลาผ่านตัวเลือกแบบวงล้อเลื่อน (Scroll Wheel Picker)
+* - แสดงค่าที่เลือกแบบเรียลไทม์ขณะเลื่อน
+* - ส่งค่าระยะเวลาที่ผู้ใช้เลือกกลับไปยังหน้าก่อนหน้า
+* - เริ่มการทำงานของตัวจับเวลาเมื่อผู้ใช้กดปุ่ม START
+* - จัดการอินเทอร์เฟซและการโต้ตอบของผู้ใช้ในหน้าตั้งเวลา
+*
+* Authors: 
+* - Nanticha Muangpun 650510623
+* Course: Mobile App Development
 */
 import 'package:flutter/material.dart';
 

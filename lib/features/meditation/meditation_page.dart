@@ -1,11 +1,19 @@
 /*
-* File: meditation_page.dart
-* Description: Meditation page that guides users through timed meditation sessions with a breathing animation, allowing them to set the session duration, start/pause/reset the timer, and receive a completion confirmation at the end.
+* File: register_screen.dart
+* Description: User registration screen for the MindCare app that allows new users to create an account with first name, last name, phone number, email, and password. It includes input validation, password visibility toggle, phone number formatting, Firebase Authentication for account creation, email verification, and storing user data in Firestore.
 *
-* Authors:
-* -  
-* - 
-* - 
+* Responsibilities:
+* - แสดงหน้าการทำสมาธิพร้อมแอนิเมชันการหายใจ
+* - อนุญาตให้ผู้ใช้ตั้งค่าระยะเวลาการทำสมาธิได้
+* - จัดการตัวจับเวลา (Timer) สำหรับการนับถอยหลังของเซสชัน
+* - ควบคุมการเริ่ม หยุดชั่วคราว และรีเซ็ตการทำสมาธิ
+* - แสดงแอนิเมชันการหายใจระหว่างการทำสมาธิ
+* - แสดงหน้าต่างแจ้งเตือนเมื่อทำสมาธิครบตามเวลาที่กำหนด
+* - จัดการสถานะการทำงานและการโต้ตอบของผู้ใช้ในหน้าการทำสมาธิ
+*
+* Authors: 
+* - Nanticha Muangpun 650510623
+* Course: Mobile App Development
 */
 import 'dart:async';
 import 'package:flutter/material.dart';

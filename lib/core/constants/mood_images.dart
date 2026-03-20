@@ -6,9 +6,12 @@
 * - จัดเก็บแผนที่ (Map) ระหว่างชื่ออารมณ์และ path ของรูปภาพ
 * - ใช้ใน MoodCalendar, MoodDiary, และ Notifications เพื่อแสดงไอคอนอารมณ์
 * - รองรับอารมณ์หลักทั้งหมด เช่น Ecstatic, Excited, Happy, Calm, Bored, Tired, Worried, Sad, Stressed
+* - ออกแบบและวาดภาพประกอบอารมณ์ (Mood Icons) สำหรับใช้ในแอป เช่น Ecstatic, Excited, Happy, Calm, Bored, Tired, Worried, Sad, Stressed
 *
-* Authors: <Anajak Chuamuangphan>
-* Course: Mobile App Development 
+* Authors: 
+* - Anajak Chuamuangphan 650510692
+* - Nanticha Muangpun 650510623
+* Course: Mobile App Development
 */
 class MoodImages {
   static const Map<String, String> map = {
