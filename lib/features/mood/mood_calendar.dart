@@ -1,3 +1,12 @@
+/*
+* File: mood_calendar.dart
+* Description: Interactive mood calendar page that displays a monthly overview of daily mood entries, allows navigation between months and years, and provides quick access to add or view detailed mood diary entries for each day.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

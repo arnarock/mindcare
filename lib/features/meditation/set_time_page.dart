@@ -1,3 +1,12 @@
+/*
+* File: set_time_page.dart
+* Description: Page that allows users to set a timer duration in minutes using a scrollable wheel picker and start the timer with a single tap.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 
 class SetTimePage extends StatefulWidget {

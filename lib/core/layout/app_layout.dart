@@ -1,3 +1,12 @@
+/*
+* File: app_layout.dart
+* Description: Provides a reusable application layout with a header including logo navigation, notifications, profile access, and optional logout, wrapping the main content area for both user and admin views.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,3 +1,12 @@
+/*
+* File: mood_calculator.dart
+* Description: Provides utility functions to calculate the numerical score and average mood from a list of mood entries, converting between mood labels and corresponding scores for tracking and analysis.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 class MoodCalculator {
   static const Map<String, int> moodScore = {
     "Ecstatic": 5,

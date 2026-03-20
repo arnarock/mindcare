@@ -1,3 +1,12 @@
+/*
+* File: admin_users_page.dart
+* Description: Admin interface for managing users in the MindCare app. Allows viewing all registered users, searching by name or email, and updating user roles to grant or revoke admin privileges in real time.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

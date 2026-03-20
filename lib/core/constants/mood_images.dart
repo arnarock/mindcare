@@ -1,3 +1,12 @@
+/*
+* File: mood_images.dart
+* Description: Defines a mapping between mood states and their corresponding image asset paths for use in the app’s mood tracking and display features.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 class MoodImages {
   static const Map<String, String> map = {
     "None": "assets/images/moods/mood_none.png",

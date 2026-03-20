@@ -1,3 +1,10 @@
+/*
+* File: psychiatrist_self_assessment.dart
+* Description: Self-assessment questionnaire screen for mental health evaluation. Displays multiple questions with step navigation, calculates scores with reverse scoring logic, and stores results in Firebase Firestore.
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

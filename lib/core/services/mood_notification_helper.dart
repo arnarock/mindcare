@@ -1,3 +1,12 @@
+/*
+* File: mood_notification_helper.dart
+* Description: Provides utilities for generating personalized mood-based notifications for users, converting mood scores to descriptive moods, selecting encouraging messages, and sending daily reminders via local notifications.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

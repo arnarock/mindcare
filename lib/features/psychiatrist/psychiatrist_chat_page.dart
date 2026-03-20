@@ -1,3 +1,12 @@
+/*
+* File: psychiatrist_chat_page.dart
+* Description: Chat interface for users to communicate with a psychiatrist, including sending and receiving messages and quick access to mental health self-assessments.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

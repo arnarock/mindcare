@@ -1,3 +1,12 @@
+/*
+* File: mood_add.dart
+* Description: Page for adding or editing daily mood entries, allowing users to select a mood from a carousel, write notes, and save the entry to their mood diary with automatic calculation of average mood scores.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -1,3 +1,12 @@
+/*
+* File: admin_chat_list_page.dart
+* Description: Displays a list of all user chats for administrators in the MindCare app. Shows user names, last messages, and unread indicators, allowing admins to quickly access individual chat conversations.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

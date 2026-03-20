@@ -1,3 +1,12 @@
+/*
+* File: mood_stats_service.dart
+* Description: Provides methods to calculate mood statistics for the current user, including the monthly average mood score and the percentage of days with a “healthy” mood, based on Firestore data.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

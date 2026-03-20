@@ -1,3 +1,12 @@
+/*
+* File: admin_chat_page.dart
+* Description: Admin chat interface for the MindCare app, allowing administrators to communicate with users in real-time. Includes message sending, viewing chat history, marking messages as read, and accessing user self-assessment results directly from the chat.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

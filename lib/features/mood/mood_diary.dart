@@ -1,3 +1,12 @@
+/*
+* File: mood_diary.dart
+* Description: Mood diary page for recording, viewing, editing, and deleting daily mood entries, with automatic calculation of average mood and navigation between dates.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,3 +1,12 @@
+/*
+* File: meditation_page.dart
+* Description: Meditation page that guides users through timed meditation sessions with a breathing animation, allowing them to set the session duration, start/pause/reset the timer, and receive a completion confirmation at the end.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mindcare/core/layout/app_layout.dart';

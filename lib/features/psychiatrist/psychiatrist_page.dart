@@ -1,3 +1,12 @@
+/*
+* File: psychiatrist_page.dart
+* Description: Main psychiatrist dashboard page that welcomes the user and provides access to chat with a psychiatrist and view or take mental health self-assessments.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

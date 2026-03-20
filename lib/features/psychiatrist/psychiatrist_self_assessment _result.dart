@@ -1,3 +1,12 @@
+/*
+* File: psychiatrist_self_assessment_result.dart
+* Description: Displays mental health self-assessment results by retrieving data from Firebase Firestore. Shows score interpretation, feedback messages, and provides navigation to chat with a psychiatrist and assessment history.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

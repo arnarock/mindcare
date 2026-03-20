@@ -1,3 +1,12 @@
+/*
+* File: login_screen.dart
+* Description: Login screen for the MindCare app that allows users to sign in using their email and password. It includes input validation, password visibility toggle, Firebase Authentication handling, loading indicator, error messages, a password reset dialog, and navigation to the registration screen for new users.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

@@ -1,3 +1,12 @@
+/*
+* File: profile_screen.dart
+* Description: User profile screen displaying personal information (name, email, phone), email verification status, and options to refresh status or log out.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,3 +1,12 @@
+/*
+* File: home.dart
+* Description: Home page of the MindCare app displaying personalized greetings, daily inspiration, mood summaries, meditation streaks, and quick access to mood tracking, meditation sessions, and psychiatrist chat features. It integrates real-time user data from Firebase and updates UI elements dynamically.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -106,9 +115,9 @@ class _HomePageState extends State<HomePage> {
           body: Center(child: Text("ไม่พบข้อมูลผู้ใช้")),
         );
       }
-
+    
       final data = snapshot.data!.data() as Map<String, dynamic>;
-      final firstName = data['firstName'] ?? '';
+      final firstName = data['firstName']?.toString() ?? "User";
 
         return AppLayout(
           isHome: true,

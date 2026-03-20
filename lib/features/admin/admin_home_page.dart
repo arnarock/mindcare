@@ -1,3 +1,12 @@
+/*
+* File: admin_home_page.dart
+* Description: Admin dashboard for the MindCare app, providing quick access to user management and chat support features. Displays a personalized greeting and allows navigation to manage users or interact with users via support chats.
+*
+* Authors:
+* -  
+* - 
+* - 
+*/
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
