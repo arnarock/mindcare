@@ -112,25 +112,6 @@ If you want to use your own:
 
 ---
 
-## 📁 Project Structure
-
-```
-lib/
- ┣ core/
- ┃ ┣ layout/
- ┃ ┣ services/
- ┃ ┗ constants/
- ┣ features/
- ┃ ┣ auth/
- ┃ ┣ home/
- ┃ ┣ mood/
- ┃ ┣ profile/
- ┃ ┗ admin/
- ┗ main.dart
-```
-
----
-
 ## 📌 Notes
 
 * Make sure notifications permission is granted on Android
@@ -139,10 +120,35 @@ lib/
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Author (zoozoo Group)
 
-**Anajak Chuamuangphan (zoozoo)**
-Mobile App Development
+```
+650510623 Nanticha Muangpun
+650510650 Atitaya Khangtan
+650510692 Anajak Chuamuangphan
+```
+
+---
+
+## 📁 Project Structure
+
+```
+lib/
+├── core/
+│   ├── constants/
+│   ├── layout/
+│   ├── services/
+│   └── theme/
+├── features/
+│   ├── admin/
+│   ├── auth/
+│   ├── home/
+│   ├── meditation/
+│   ├── mood/
+│   ├── profile/
+│   └── psychiatrist/
+└── navigation/
+```
 
 ---
 
